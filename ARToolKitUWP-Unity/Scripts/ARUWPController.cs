@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
+using UnityEngine.UI;
 
 #if !UNITY_EDITOR && UNITY_METRO
 using System.Threading.Tasks;
@@ -103,6 +104,13 @@ public class ARUWPController : MonoBehaviour {
     private readonly static Queue<Action> ExecuteOnMainThread = new Queue<Action>();
 
 
+    // ARToolKit running rate
+    private float deltaTime;
+    private float lastTick;
+    private float msec, fps;
+    public Text ARUWPFrameRateTextbox;
+
+
 
     private bool firstFrameSent = false;
 
@@ -121,6 +129,8 @@ public class ARUWPController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        lastTick = Time.time;
+        deltaTime = 0;
         startWebcam();
         startARUWP();
     }
@@ -177,6 +187,9 @@ public class ARUWPController : MonoBehaviour {
                 imageData = webcamTexture.GetPixels32();
                 Task.Run(() => Detect(imageData));
             }
+        }
+        if (ARUWPFrameRateTextbox != null){
+            ARUWPFrameRateTextbox.text = string.Format("AR: {0:0.0} ms ({1:0.} fps)", msec, fps);
         }
     }
 
@@ -241,10 +254,20 @@ public class ARUWPController : MonoBehaviour {
                 setAllTrackingOptions();
             }
         }
+        Tick();
         detecting = false;
     }
 
-    
+
+
+    private void Tick() {
+        float currentTick = Time.time;
+        deltaTime += (currentTick - lastTick - deltaTime) * 0.1f;
+        msec = deltaTime * 1000f;
+        fps = 1 / deltaTime;
+        lastTick = currentTick;
+    }
+
 
 
     void removeAllMarkers() {
