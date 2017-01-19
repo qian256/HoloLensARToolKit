@@ -1,0 +1,3 @@
+[submodule "HoloLensCamCalib"]
+	path = HoloLensCamCalib
+	url = https://github.com/qian256/HoloLensCamCalib
