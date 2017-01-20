@@ -19,11 +19,11 @@ This repository contains:
 Following are two screenshots taken in HoloLens Device Portal:
 <table>
 <tr>
-	<td align="center" width="100%"><img src="https://cloud.githubusercontent.com/assets/8185982/22130509/6e2915e4-de7a-11e6-8205-7521bd5ee1bf.jpg" /></td>
-	<td  align="center" width="100%"><img src="https://cloud.githubusercontent.com/assets/8185982/22130508/6e283ffc-de7a-11e6-98de-c13662b76842.jpg" /></td>
+	<td align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22130509/6e2915e4-de7a-11e6-8205-7521bd5ee1bf.jpg" /></td>
+	<td  align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22130508/6e283ffc-de7a-11e6-98de-c13662b76842.jpg" /></td>
 </tr>
 </table>
-The hiro marker and kanji marker are tracked by the HoloLens front-facing camera, and the rotation is associated with the two cubes on top. The image plane visualizes the current camera frame.
+The hiro marker (left) and kanji marker (right) are tracked by the HoloLens front-facing camera, and the rotation is associated with the two cubes on top. The 2D plane visualizes the current camera frame.
 
 Frame rate of rendering and frame rate of tracking are displayed on the top right corner. The two green block shows the confidence of tracking of the two markers.
 
