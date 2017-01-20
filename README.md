@@ -19,8 +19,8 @@ This repository contains:
 Following are two screenshots taken in HoloLens Device Portal:
 <table>
 <tr>
-	<td align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22130509/6e2915e4-de7a-11e6-8205-7521bd5ee1bf.jpg" /></td>
-	<td  align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22130508/6e283ffc-de7a-11e6-98de-c13662b76842.jpg" /></td>
+	<td align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22130805/ade4ac96-de7c-11e6-91fb-a3be5ad5d559.jpg" /></td>
+	<td  align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22130806/ade7e8ac-de7c-11e6-82ff-d1b31caef17f.jpg" /></td>
 </tr>
 </table>
 The hiro marker (left) and kanji marker (right) are tracked by the HoloLens front-facing camera, and the rotation is associated with the two cubes on top. The 2D plane visualizes the current camera frame.
