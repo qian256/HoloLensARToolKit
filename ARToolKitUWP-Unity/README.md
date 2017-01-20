@@ -18,4 +18,14 @@ Files in this folder are shipped with the application, which means they will als
 
 ```hololens896x504.dat``` is the camera calibration file of my HoloLens locatable camera. Details can be found in this [repository](https://github.com/qian256/HoloLensCamCalib/tree/master).
 
+## How does it look like?
+The following images are screenshots of Unity inspector of ARUWPController and ARUWPMarker.
+<table>
+<tr>
+	<td align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22160312/d4821bfe-df12-11e6-80cf-cfbfc7f4b5be.png" /></td>
+</tr>
+<tr>
+	<td align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22160313/d482b582-df12-11e6-88e3-3f1f03e0fef7.png" /></td>
+</tr>
+</table>
 
