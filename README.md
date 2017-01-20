@@ -17,7 +17,7 @@ This repository contains:
 
 ## Demo
 Following are two screenshots taken in HoloLens Device Portal:
-<table>
+<table border=0>
 <tr>
 	<td align="center" width="49.6%"><img src="https://cloud.githubusercontent.com/assets/8185982/22130805/ade4ac96-de7c-11e6-91fb-a3be5ad5d559.jpg" /></td>
 	<td  align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22130806/ade7e8ac-de7c-11e6-82ff-d1b31caef17f.jpg" /></td>

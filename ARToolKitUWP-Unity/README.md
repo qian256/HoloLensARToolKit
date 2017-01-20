@@ -20,7 +20,7 @@ Files in this folder are shipped with the application, which means they will als
 
 ## How does it look like?
 The following images are screenshots of Unity inspector of ARUWPController and ARUWPMarker.
-<table>
+<table border=0>
 <tr>
 	<td align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22160312/d4821bfe-df12-11e6-80cf-cfbfc7f4b5be.png" /></td>
 </tr>
