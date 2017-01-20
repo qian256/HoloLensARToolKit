@@ -42,7 +42,8 @@ Frame rate of rendering and frame rate of tracking are displayed on the top righ
 
 ## Do more with HoloLensARToolKit
 - Integrate HoloLensARToolKit package with your application.
-- Customize native library of ARToolKitUWP
-- Customize Unity package ARToolKitUWP-Unity
+- Customize native library of ARToolKitUWP.
+- Customize Unity package ARToolKitUWP-Unity.
+- Calibrate your HoloLens camera.
 
 
