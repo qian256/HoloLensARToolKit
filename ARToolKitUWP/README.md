@@ -7,14 +7,15 @@ Author: [Long Qian](https://longqian.me/aboutme)
 Date: 2017-01-20
 
 ## Overview
-ARWrapper library provided by [ARToolKit](https://github.com/artoolkit/artoolkit5) is compatible with multiple platforms, but not with UWP yet. This project intends to fill this gap. The native library built by this project consumes uwp runtime, and can be accessed by .NET applications via [PInovoke](http://www.pinvoke.net/).
+ARWrapper library provided by [ARToolKit](https://github.com/artoolkit/artoolkit5) is compatible with multiple platforms, but not with UWP yet. This project intends to fill this gap. The native library built by this project consumes UWP runtime, and can be accessed by .NET applications via [PInovoke](http://www.pinvoke.net/).
 
 ## What's in?
-```ARToolKitUWP.sln``` solution builds a dynamic link library for x86, namely, ```ARToolKitUWP.dll```. This library incorperates the following ARToolKit component:  
+```ARToolKitUWP.sln``` solution builds a dynamic link library for x86, namely, ```ARToolKitUWP.dll```. This library incorperates the following ARToolKit components:  
 - AR.lib
 - AR2.lib
 - ARICP.lib
 - ARMulti.lib
+
 Therefore, this wrapper is capable of detecting single-pattern markers and multi-pattern markers. NFT (Natural Feature Marker) is not supported right now, because of its various unsatisfied dependencies on UWP.
 
 ## Exported APIs
