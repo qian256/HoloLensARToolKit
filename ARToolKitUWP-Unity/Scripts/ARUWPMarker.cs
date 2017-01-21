@@ -106,7 +106,8 @@ public class ARUWPMarker : MonoBehaviour{
                 target.transform.localRotation = ARUWPUtils.QuaternionFromMatrix(transMatrix);
             }
             if (applyTranslation) {
-                target.transform.localPosition = ARUWPUtils.PositionFromMatrix(transMatrix);
+                target.transform.localPosition = ARUWPUtils.PositionFromMatrixMeter(transMatrix);
+                // Debug.Log(TAG + ": Current local position " + target.transform.localPosition);
             }
         }
     }

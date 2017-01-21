@@ -25,7 +25,7 @@ public static class ARUWPUtils {
     /// <summary>
     /// Extract Quaternion representation from Matrix4x4 obejct
     /// </summary>
-    public static Quaternion QuaternionFromMatrix(Matrix4x4 m) {
+    public static Quaternion QuaternionFromMatrix_Deprecated(Matrix4x4 m) {
         // Adapted from: http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
         Quaternion q = new Quaternion();
         q.w = Mathf.Sqrt(Mathf.Max(0, 1 + m[0, 0] + m[1, 1] + m[2, 2])) / 2;
@@ -40,10 +40,39 @@ public static class ARUWPUtils {
 
 
     /// <summary>
+    /// Extract Quaternion representation from Matrix4x4 obejct
+    /// </summary>
+    public static Quaternion QuaternionFromMatrix(Matrix4x4 m) {
+        return Quaternion.LookRotation(m.GetColumn(2), m.GetColumn(1));
+    }
+
+    /// <summary>
     /// Extract Vector3 representation of translation from Matrix4x4 obejct
+    /// unit: meter
+    /// </summary>
+    public static Vector3 PositionFromMatrixMeter(Matrix4x4 m) {
+        return new Vector3(m[0, 3]/1000f, m[1, 3]/1000f, m[2, 3]/1000f);
+    }
+
+
+    /// <summary>
+    /// Extract Vector3 representation of translation from Matrix4x4 obejct
+    /// unit: millimeter
     /// </summary>
     public static Vector3 PositionFromMatrix(Matrix4x4 m) {
         return new Vector3(m[0, 3], m[1, 3], m[2, 3]);
+    }
+
+
+    /// <summary>
+    /// Extract Vector3 representation of scale from Matrix4x4 obejct
+    /// </summary>
+    public static Vector3 ScaleFromMatrix(Matrix4x4 m) {
+        var x = Mathf.Sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
+        var y = Mathf.Sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
+        var z = Mathf.Sqrt(m.m20 * m.m20 + m.m21 * m.m21 + m.m22 * m.m22);
+
+        return new Vector3(x, y, z);
     }
 
 
@@ -71,5 +100,43 @@ public static class ARUWPUtils {
         Debug.Log(str1 + str2 + str3 + str4);
     }
 
+
+    /// <summary>
+    /// Convert ARUWP matrix to unity matrix, the trick here is to change unit from millimeter to meter
+    /// </summary>
+    public static Matrix4x4 ConvertARUWPMatrixToMatrix4x4(Matrix4x4 m) {
+        Matrix4x4 n = m * Matrix4x4.identity;
+        n.m03 /= 1000f;
+        n.m13 /= 1000f;
+        n.m23 /= 1000f;
+        return n;
+    }
+
+
+    /// <summary>
+    /// Convert Unity Transform object to a Matrix4x4 object
+    /// </summary>
+    public static Matrix4x4 ConvertTransformToMatrix4x4(Transform t) {
+        return Matrix4x4.TRS(t.localPosition, t.localRotation, t.localScale);
+    }
+
+
+    /// <summary>
+    /// Apply a transformation represented by Matrix4x4 to a Transform object
+    /// </summary>
+    public static void SetMatrix4x4ToTransform(ref Transform t, Matrix4x4 m) {
+        t.localPosition = PositionFromMatrix(m);
+        t.localRotation = QuaternionFromMatrix(m);
+        t.localScale = ScaleFromMatrix(m);
+    }
+
+    /// <summary>
+    /// Apply a transformation represented by Matrix4x4 to a GameObject
+    /// </summary>
+    public static void SetMatrix4x4ToGameObject(ref GameObject o, Matrix4x4 m) {
+        o.transform.localPosition = PositionFromMatrix(m);
+        o.transform.localRotation = QuaternionFromMatrix(m);
+        o.transform.localScale = ScaleFromMatrix(m);
+    }
 
 }
