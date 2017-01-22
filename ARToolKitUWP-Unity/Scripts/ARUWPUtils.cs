@@ -10,14 +10,16 @@ using UnityEngine;
 /// </summary>
 public static class ARUWPUtils {
 
+    private static string TAG = "ARUWPUtils";
+
     /// <summary>
     /// Convert row major 3x4 matrix to Matrix4x4
     /// </summary>
-    public static Matrix4x4 ConvertFloatArrayToMatrix4x4(float[] t) {
+    public static Matrix4x4 ConvertARUWPFloatArrayToMatrix4x4(float[] t) {
         Matrix4x4 m = new Matrix4x4();
-        m.SetRow(0, new Vector4(t[0], t[1], t[2], t[3]));
-        m.SetRow(1, new Vector4(t[4], t[5], t[6], t[7]));
-        m.SetRow(2, new Vector4(t[8], t[9], t[10], t[11]));
+        m.SetRow(0, new Vector4(t[0], t[1], t[2], t[3]/1000.0f));
+        m.SetRow(1, new Vector4(t[4], t[5], t[6], t[7]/1000.0f));
+        m.SetRow(2, new Vector4(t[8], t[9], t[10], t[11]/1000.0f));
         m.SetRow(3, new Vector4(0, 0, 0, 1));
         return m;
     }
@@ -43,6 +45,11 @@ public static class ARUWPUtils {
     /// Extract Quaternion representation from Matrix4x4 obejct
     /// </summary>
     public static Quaternion QuaternionFromMatrix(Matrix4x4 m) {
+        // Trap the case where the matrix passed in has an invalid rotation submatrix.
+        if (m.GetColumn(2) == Vector4.zero) {
+            Debug.Log(TAG + ": Quaternion got zero matrix");
+            return Quaternion.identity;
+        }
         return Quaternion.LookRotation(m.GetColumn(2), m.GetColumn(1));
     }
 
@@ -50,9 +57,9 @@ public static class ARUWPUtils {
     /// Extract Vector3 representation of translation from Matrix4x4 obejct
     /// unit: meter
     /// </summary>
-    public static Vector3 PositionFromMatrixMeter(Matrix4x4 m) {
-        return new Vector3(m[0, 3]/1000f, m[1, 3]/1000f, m[2, 3]/1000f);
-    }
+    //public static Vector3 PositionFromMatrixMeter(Matrix4x4 m) {
+    //    return m.GetColumn(3) / 1000f;
+    //}
 
 
     /// <summary>
@@ -60,7 +67,7 @@ public static class ARUWPUtils {
     /// unit: millimeter
     /// </summary>
     public static Vector3 PositionFromMatrix(Matrix4x4 m) {
-        return new Vector3(m[0, 3], m[1, 3], m[2, 3]);
+        return m.GetColumn(3);
     }
 
 
@@ -104,13 +111,13 @@ public static class ARUWPUtils {
     /// <summary>
     /// Convert ARUWP matrix to unity matrix, the trick here is to change unit from millimeter to meter
     /// </summary>
-    public static Matrix4x4 ConvertARUWPMatrixToMatrix4x4(Matrix4x4 m) {
-        Matrix4x4 n = m * Matrix4x4.identity;
-        n.m03 /= 1000f;
-        n.m13 /= 1000f;
-        n.m23 /= 1000f;
-        return n;
-    }
+    //public static Matrix4x4 ConvertARUWPMatrixToMatrix4x4(Matrix4x4 m) {
+    //    Matrix4x4 n = m * Matrix4x4.identity;
+    //    n.m03 /= 1000f;
+    //    n.m13 /= 1000f;
+    //    n.m23 /= 1000f;
+    //    return n;
+    //}
 
 
     /// <summary>
@@ -139,4 +146,42 @@ public static class ARUWPUtils {
         o.transform.localScale = ScaleFromMatrix(m);
     }
 
+
+    /// <summary>
+    /// Adapted from arunity package:
+    /// Convert from right-hand coordinate system with <normal vector> in direction of +x,
+    /// <orthorgonal vector> in direction of +y, and <approach vector> in direction of +z,
+    /// to Unity's left-hand coordinate system with <normal vector> in direction of +x,
+    /// <orthorgonal vector> in direction of +y, and <approach vector> in direction of +z.
+    /// This is equivalent to negating row 2, and then negating column 2.
+    /// </summary>
+    //public static Matrix4x4 LHMatrixFromRHMatrix(Matrix4x4 rhm) {
+    //    Matrix4x4 lhm = new Matrix4x4(); 
+
+    //    // Column 0.
+    //    lhm[0, 0] = rhm[0, 0];
+    //    lhm[1, 0] = rhm[1, 0];
+    //    lhm[2, 0] = -rhm[2, 0];
+    //    lhm[3, 0] = rhm[3, 0];
+
+    //    // Column 1.
+    //    lhm[0, 1] = rhm[0, 1];
+    //    lhm[1, 1] = rhm[1, 1];
+    //    lhm[2, 1] = -rhm[2, 1];
+    //    lhm[3, 1] = rhm[3, 1];
+
+    //    // Column 2.
+    //    lhm[0, 2] = -rhm[0, 2];
+    //    lhm[1, 2] = -rhm[1, 2];
+    //    lhm[2, 2] = rhm[2, 2];
+    //    lhm[3, 2] = -rhm[3, 2];
+
+    //    // Column 3.
+    //    lhm[0, 3] = rhm[0, 3];
+    //    lhm[1, 3] = rhm[1, 3];
+    //    lhm[2, 3] = -rhm[2, 3];
+    //    lhm[3, 3] = rhm[3, 3];
+
+    //    return lhm;
+    //}
 }

@@ -106,7 +106,7 @@ public class ARUWPMarker : MonoBehaviour{
                 target.transform.localRotation = ARUWPUtils.QuaternionFromMatrix(transMatrix);
             }
             if (applyTranslation) {
-                target.transform.localPosition = ARUWPUtils.PositionFromMatrixMeter(transMatrix);
+                target.transform.localPosition = ARUWPUtils.PositionFromMatrix(transMatrix);
                 // Debug.Log(TAG + ": Current local position " + target.transform.localPosition);
             }
         }
@@ -118,7 +118,7 @@ public class ARUWPMarker : MonoBehaviour{
     public bool updateMarkerTracking() {
         if (id != -1) {
             if (ARUWP.aruwpQueryMarkerTransformation(id, trans)) {
-                transMatrix = ARUWPUtils.ConvertFloatArrayToMatrix4x4(trans);
+                transMatrix = ARUWPUtils.ConvertARUWPFloatArrayToMatrix4x4(trans);
                 if (type != MarkerType.multi) {
                     confidence = ARUWP.aruwpGetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE);
                 }
