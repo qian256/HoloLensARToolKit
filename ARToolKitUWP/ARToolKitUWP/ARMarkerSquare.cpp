@@ -5,6 +5,11 @@
 #  define MAX(x,y) (x > y ? x : y)
 #endif
 
+// DEBUG
+#define ARLOGi printf
+#define ARLOGe printf
+#define ARLOGd printf
+
 
 ARMarkerSquare::ARMarkerSquare() : ARMarker(SINGLE),
 									m_loaded(false),
@@ -146,7 +151,7 @@ void ARMarkerSquare::setConfidenceCutoff(ARdouble value)
 
 bool ARMarkerSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle *ar3DHandle) {
 
-	ARLOGd("ARMarkerSquare::update()");
+	ARLOGd("ARMarkerSquare::update(), id: %d\n", patt_id);
 
 	if (patt_id < 0) return false;	// Can't update if no pattern loaded
 

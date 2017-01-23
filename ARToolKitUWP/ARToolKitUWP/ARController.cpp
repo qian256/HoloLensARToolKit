@@ -4,6 +4,11 @@
 #include <string>
 #include <stdarg.h>
 
+// DEBUG
+#define ARLOGi printf
+#define ARLOGe printf
+#define ARLOGd printf
+
 
 ARController::ARController() :
 	state(NOTHING_INITIALISED),
@@ -67,23 +72,23 @@ const char* ARController::getARToolKitVersion()
 
 bool ARController::initialiseBase(const int patternSize, const int patternCountMax)
 {
-	ARLOGd("ARWrapper::ARController::initialiseBase(): called");
+	ARLOGd("ARWrapper::ARController::initialiseBase(): called\n");
 	if (state != NOTHING_INITIALISED) {
-		ARLOGe("Initialise called while already initialised. Will shutdown first, exiting, returning false");
+		ARLOGe("Initialise called while already initialised. Will shutdown first, exiting, returning false\n");
 		if (!shutdown())
 			return false;
 	}
-	ARLOGi("ARWrapper::ARController::initialiseBase(): Initialising...");
+	ARLOGi("ARWrapper::ARController::initialiseBase(): Initialising...\n");
 	
 	// Create pattern handle so markers can begin to be added.
 	if ((m_arPattHandle = arPattCreateHandle2(patternSize, patternCountMax)) == NULL) {
-		ARLOGe("Error: arPattCreateHandle2, exiting, returning false");
+		ARLOGe("Error: arPattCreateHandle2, exiting, returning false\n");
 		return false;
 	}
 
 	state = BASE_INITIALISED;
 
-	ARLOGd("ARWrapper::ARController::initialiseBase(): Initialised, exiting, returning true");
+	ARLOGd("ARWrapper::ARController::initialiseBase(): Initialised, exiting, returning true\n");
 	return true;
 }
 
@@ -100,17 +105,17 @@ void ARController::setPixelFormat(int format) {
 
 bool ARController::startRunning(const char* cparaName, const char* cparaBuff, const long cparaBuffLen)
 {
-	ARLOGi("ARController::startRunning(): called, start running");
+	ARLOGi("ARController::startRunning(): called, start running\n");
 
 	// Check for initialization before starting video
 	if (state != BASE_INITIALISED) {
-		ARLOGe("ARController::startRunning(): Error: not initialized, exiting, returning false");
+		ARLOGe("ARController::startRunning(): Error: not initialized, exiting, returning false\n");
 		return false;
 	}
 
 	frameSource = FrameSource::newFrameSource(frameWidth, frameHeight, pixelFormat);
 	if (!frameSource) {
-		ARLOGe("ARController::startRunning(): Error: no frame source, exiting, returning false");
+		ARLOGe("ARController::startRunning(): Error: no frame source, exiting, returning false\n");
 		return false;
 	}
 
@@ -124,24 +129,24 @@ bool ARController::startRunning(const char* cparaName, const char* cparaBuff, co
 
 	state = WAITING_FOR_FRAME;
 
-	ARLOGd("ARController::startRunning(): exiting, returning true");
+	ARLOGd("ARController::startRunning(): exiting, returning true\n");
 	return true;
 }
 
 
 bool ARController::initARMore(void)
 {
-	ARLOGi("ARController::initARMore() called");
+	ARLOGi("ARController::initARMore() called\n");
 
 	// Create AR handle
 	if ((m_arHandle = arCreateHandle(frameSource->getCameraParameters())) == NULL) {
-		ARLOGe("ARController::initARMore(): Error: arCreateHandle()");
+		ARLOGe("ARController::initARMore(): Error: arCreateHandle()\n");
 		goto bail;
 	}
 
 	// Set the pixel format
 	if (arSetPixelFormat(m_arHandle, frameSource->getPixelFormat()) < 0) {
-		ARLOGe("ARController::initARMore(): Error: arSetPixelFormat");
+		ARLOGe("ARController::initARMore(): Error: arSetPixelFormat\n");
 		goto bail1;
 	}
 
@@ -158,45 +163,45 @@ bool ARController::initARMore(void)
 
 	// Create 3D handle
 	if ((m_ar3DHandle = ar3DCreateHandle(&frameSource->getCameraParameters()->param)) == NULL) {
-		ARLOGe("ARController::initARMore(): Error: ar3DCreateHandle");
+		ARLOGe("ARController::initARMore(): Error: ar3DCreateHandle\n");
 		goto bail1;
 	}
 
-	ARLOGd("ARController::initARMore() exiting, returning true");
+	ARLOGd("ARController::initARMore() exiting, returning true\n");
 	return true;
 
 bail1:
 	arDeleteHandle(m_arHandle);
 	m_arHandle = NULL;
 bail:
-	ARLOGe("ARController::initARMore() exiting, returning false");
+	ARLOGe("ARController::initARMore() exiting, returning false\n");
 	return false;
 }
 
 
 bool ARController::stopRunning()
 {
-	ARLOGd("ARController::stopRunning(): called");
+	ARLOGd("ARController::stopRunning(): called\n");
 	if (state != DETECTION_RUNNING && state != WAITING_FOR_FRAME) {
-		ARLOGe("ARController::stopRunning(): Error: Not running.");
+		ARLOGe("ARController::stopRunning(): Error: Not running.\n");
 		return false;
 	}
 
 	if (frameSource) {
-		ARLOGd("ARController::stopRunning(): if (frameSource) true");
-		ARLOGd("ARController::stopRunning(): calling frameSource->close()");
+		ARLOGd("ARController::stopRunning(): if (frameSource) true\n");
+		ARLOGd("ARController::stopRunning(): calling frameSource->close()\n");
 		frameSource->close();
 		delete frameSource;
 		frameSource = NULL;
 	}
 	
 	if (m_ar3DHandle) {
-		ARLOGd("ARController::stopRunning(): calling ar3DDeleteHandle(&m_ar3DHandle)");
+		ARLOGd("ARController::stopRunning(): calling ar3DDeleteHandle(&m_ar3DHandle)\n");
 		ar3DDeleteHandle(&m_ar3DHandle); // Sets ar3DHandle0 to NULL.
 	}
 
 	if (m_arHandle) {
-		ARLOGd("ARController::stopRunning(): if (m_arHandle0) true");
+		ARLOGd("ARController::stopRunning(): if (m_arHandle0) true\n");
 		arPattDetach(m_arHandle);
 		arDeleteHandle(m_arHandle);
 		m_arHandle = NULL;
@@ -204,7 +209,7 @@ bool ARController::stopRunning()
 
 	state = BASE_INITIALISED;
 
-	ARLOGd("ARController::stopRunning(): exiting, returning true");
+	ARLOGd("ARController::stopRunning(): exiting, returning true\n");
 	return true;
 }
 
@@ -217,7 +222,7 @@ bool ARController::update(ARUint8* frame)
 	if (state != DETECTION_RUNNING) {
 		if (state != WAITING_FOR_FRAME) {
 			// State is NOTHING_INITIALISED or BASE_INITIALISED.
-			ARLOGe("ARController::update(): Error-if (state != WAITING_FOR_VIDEO) true, exiting returning false");
+			ARLOGe("ARController::update(): Error-if (state != WAITING_FOR_VIDEO) true, exiting returning false\n");
 			return false;
 
 		}
@@ -225,7 +230,7 @@ bool ARController::update(ARUint8* frame)
 
 			// First check there is a video source and it's open.
 			if (!frameSource) {
-				ARLOGe("ARController::update(): Error-no video source or video source is closed, exiting returning false");
+				ARLOGe("ARController::update(): Error-no video source or video source is closed, exiting returning false\n");
 				return false;
 			}
 			state = DETECTION_RUNNING;
@@ -236,11 +241,11 @@ bool ARController::update(ARUint8* frame)
 	// check frame and frameSource
 	//
 	if (!frame) {
-		ARLOGe("ARController::update(): no frame parsed, exiting returning true");
+		ARLOGe("ARController::update(): no frame parsed, exiting returning true\n");
 		return false;
 	}
 	if (!frameSource) {
-		ARLOGe("ARController::update(): Error-no video source or video source is closed, exiting returning false");
+		ARLOGe("ARController::update(): Error-no video source or video source is closed, exiting returning false\n");
 		return false;
 	}
 	else {
@@ -251,25 +256,29 @@ bool ARController::update(ARUint8* frame)
 	// Detect markers.
 	//
 	if (doMarkerDetection) {
-		ARLOGd("ARController::update(): if (doMarkerDetection) true");
+		ARLOGd("ARController::update(): if (doMarkerDetection) true\n");
 
 		ARMarkerInfo *markerInfo = NULL;
 		int markerNum = 0;
 
 		if (!m_arHandle) {
 			if (!initARMore()) {
-				ARLOGe("ARController::update(): Error initialising AR, exiting returning false");
+				ARLOGe("ARController::update(): Error initialising AR, exiting returning false\n");
 				return false;
 			}
 		}
 
 		if (m_arHandle) {
 			if (arDetectMarker(m_arHandle, frame) < 0) {
-				ARLOGe("ARController::update(): Error: arDetectMarker(), exiting returning false");
+				ARLOGe("ARController::update(): Error: arDetectMarker(), exiting returning false\n");
 				return false;
 			}
 			markerInfo = arGetMarker(m_arHandle);
 			markerNum = arGetMarkerNum(m_arHandle);
+			ARLOGd("ARController::update(): number of detected markers: %d\n", markerNum);
+			for (int i = 0; i < markerNum; i++) {
+				ARLOGd("ARController::update(): marker %d with id: %d\n", i, markerInfo[i].idMatrix);
+			}
 		}
 
 		// Update square markers.
@@ -284,7 +293,7 @@ bool ARController::update(ARUint8* frame)
 			}
 	} // doMarkerDetection
 
-	ARLOGd("ARController::update(): exiting, returning true");
+	ARLOGd("ARController::update(): exiting, returning true\n");
 
 	return true;
 }
@@ -292,18 +301,18 @@ bool ARController::update(ARUint8* frame)
 
 bool ARController::shutdown()
 {
-	ARLOGd("ARController::shutdown(): called");
+	ARLOGd("ARController::shutdown(): called\n");
 	do {
 		switch (state) {
 		case DETECTION_RUNNING:
 		case WAITING_FOR_FRAME:
-			ARLOGd("ARController::shutdown(): DETECTION_RUNNING or WAITING_FOR_FRAME, forcing stop.");
+			ARLOGd("ARController::shutdown(): DETECTION_RUNNING or WAITING_FOR_FRAME, forcing stop.\n");
 			stopRunning();
 			break;
 
 		case BASE_INITIALISED:
 			if (countMarkers() > 0) {
-				ARLOGd("ARController::shutdown(): BASE_INITIALISED, cleaning up markers.");
+				ARLOGd("ARController::shutdown(): BASE_INITIALISED, cleaning up markers.\n");
 				removeAllMarkers();
 			}
 
@@ -315,12 +324,12 @@ bool ARController::shutdown()
 			state = NOTHING_INITIALISED;
 			// Fall though.
 		case NOTHING_INITIALISED:
-			ARLOGd("ARController::shutdown(): NOTHING_INITIALISED, complete");
+			ARLOGd("ARController::shutdown(): NOTHING_INITIALISED, complete\n");
 			break;
 		}
 	} while (state != NOTHING_INITIALISED);
 
-	ARLOGd("ARController::shutdown(): exiting, returning true");
+	ARLOGd("ARController::shutdown(): exiting, returning true\n");
 	return true;
 }
 
@@ -460,13 +469,13 @@ int ARController::getMatrixCodeType() const
 int ARController::addMarker(const char* cfg)
 {
 	if (!canAddMarker()) {
-		ARLOGe("Error: Cannot add marker. ARToolKit not initialised");
+		ARLOGe("Error: Cannot add marker. ARToolKit not initialised\n");
 		return -1;
 	}
 
 	ARMarker *marker = ARMarker::newWithConfig(cfg, m_arPattHandle);
 	if (!marker) {
-		ARLOGe("Error: Failed to load marker.\n");
+		ARLOGe("Error: Failed to load marker.\n\n");
 		return -1;
 	}
 	if (!addMarker(marker)) {
@@ -478,14 +487,14 @@ int ARController::addMarker(const char* cfg)
 
 bool ARController::addMarker(ARMarker* marker)
 {
-	ARLOGd("ARController::addMarker(): called");
+	ARLOGd("ARController::addMarker(): called\n");
 	if (!canAddMarker()) {
-		ARLOGe("Error: Cannot add marker. ARToolKit not initialised, exiting, returning false");
+		ARLOGe("Error: Cannot add marker. ARToolKit not initialised, exiting, returning false\n");
 		return false;
 	}
 
 	if (!marker) {
-		ARLOGe("Error: Cannot add a NULL marker, exiting, returning false");
+		ARLOGe("Error: Cannot add a NULL marker, exiting, returning false\n");
 		return false;
 	}
 
@@ -501,7 +510,7 @@ bool ARController::removeMarker(int UID)
 {
 	ARMarker *marker = findMarker(UID);
 	if (!marker) {
-		ARLOGe("ARController::removeMarker(): could not find marker (UID=%d).");
+		ARLOGe("ARController::removeMarker(): could not find marker (UID=%d).\n");
 		return (false);
 	}
 	return removeMarker(marker);
@@ -509,9 +518,9 @@ bool ARController::removeMarker(int UID)
 
 bool ARController::removeMarker(ARMarker* marker)
 {
-	ARLOGd("ARController::removeMarker(): called");
+	ARLOGd("ARController::removeMarker(): called\n");
 	if (!marker) {
-		ARLOGe("ARController::removeMarker(): no marker specified, exiting, returning false");
+		ARLOGe("ARController::removeMarker(): no marker specified, exiting, returning false\n");
 		return false;
 	}
 
@@ -528,7 +537,7 @@ bool ARController::removeMarker(ARMarker* marker)
 
 	int markerCount = countMarkers();
 	if (markerCount == 0) {
-		ARLOGi("Last square marker removed; disabling square marker detection.");
+		ARLOGi("Last square marker removed; disabling square marker detection.\n");
 		doMarkerDetection = false;
 	}
 

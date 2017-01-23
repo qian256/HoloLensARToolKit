@@ -5,6 +5,7 @@
 #define    AR_PATTERN_TYPE_MATRIX      1
 
 
+
 /**
 * Single marker type of ARMarker.
 */
