@@ -48,7 +48,7 @@ public class ARUWPMarker : MonoBehaviour{
 
 
     // multi
-    public string multiFileName = "cubeMarkerConfig.dat";
+    public string multiFileName = "multi-barcode-4x3.dat";
     private int multiPatternCount = 0;
     private ARUWPPattern[] multiPatterns;
     public struct ARUWPPattern {
