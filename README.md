@@ -23,8 +23,8 @@ Following are two screenshots taken in HoloLens Device Portal:
 	<td align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22190907/907d311c-e0f4-11e6-84b4-91b47586b008.jpg" /></td>
 </tr>
 <tr>
-	<td>Multiple Marker Tracking</td>
-	<td>Cube Marker Tracking</td>
+	<td align="center">Multiple Marker Tracking</td>
+	<td align="center">Cube Marker Tracking</td>
 </tr>
 </table>
 The top-left 2D plane visualizes the current camera frame. Frame rate of rendering and frame rate of tracking are displayed on the top-right corner.
