@@ -74,6 +74,13 @@ public class ARUWPController : MonoBehaviour {
         AR_IMAGE_PROC_FIELD_IMAGE = ARUWP.AR_IMAGE_PROC_FIELD_IMAGE,
         AR_IMAGE_PROC_FRAME_IMAGE = ARUWP.AR_IMAGE_PROC_FRAME_IMAGE
     }
+    public enum AR_LOG_LEVEL {
+        AR_LOG_LEVEL_DEBUG = 0,
+        AR_LOG_LEVEL_INFO,
+        AR_LOG_LEVEL_WARN,
+        AR_LOG_LEVEL_ERROR,
+        AR_LOG_LEVEL_REL_INFO
+    }
     #endregion
 
     public ThresholdMode thresholdMode = ThresholdMode.AR_LABELING_THRESH_MODE_MANUAL;
@@ -82,6 +89,7 @@ public class ARUWPController : MonoBehaviour {
     public MatrixCodeType matrixCodeType = MatrixCodeType.AR_MATRIX_CODE_3x3;
     public ImageProcMode imageProcMode = ImageProcMode.AR_IMAGE_PROC_FRAME_IMAGE;
 
+    private AR_LOG_LEVEL currentLogLevel = AR_LOG_LEVEL.AR_LOG_LEVEL_DEBUG;
 
 
     private enum State {
@@ -129,6 +137,8 @@ public class ARUWPController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        ARUWPUtils.aruwpRegisterLogCallback(Log);
+        ARUWPUtils.aruwpSetLogLevel((int)currentLogLevel);
         lastTick = Time.time;
         deltaTime = 0;
         startWebcam();
@@ -172,6 +182,7 @@ public class ARUWPController : MonoBehaviour {
     void OnDestroy() {
         removeAllMarkers();
         shutDownAR();
+        ARUWP.aruwpRegisterLogCallback(null);
     }
 
 
@@ -500,4 +511,22 @@ public class ARUWPController : MonoBehaviour {
     }
     #endregion
 
+
+
+    private static List<String> logMessages = new List<String>();
+    private const int MaximumLogMessages = 1000;
+
+    public static Action<String> logCallback { get; set; }
+
+    public static void Log(String msg) {
+        // Add the new log message to the collection. If the collection has grown too large
+        // then remove the oldest messages.
+        logMessages.Add(msg);
+        while (logMessages.Count > MaximumLogMessages) logMessages.RemoveAt(0);
+
+        // If there is a logCallback then use that to handle the log message. Otherwise simply
+        // print out on the debug console.
+        if (logCallback != null) logCallback(msg);
+        else Debug.Log(msg);
+    }
 }

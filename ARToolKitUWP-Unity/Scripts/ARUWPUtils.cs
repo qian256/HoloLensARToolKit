@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 /// <summary>
@@ -11,6 +12,31 @@ using UnityEngine;
 public static class ARUWPUtils {
 
     private static string TAG = "ARUWPUtils";
+
+    // Delegate type declaration.
+    public delegate void LogCallback([MarshalAs(UnmanagedType.LPStr)] string msg);
+
+    // Delegate instance.
+    private static LogCallback logCallback = null;
+    private static GCHandle logCallbackGCH;
+
+    public static void aruwpRegisterLogCallback(LogCallback lcb) {
+        if (lcb != null) {
+            logCallback = lcb;
+            logCallbackGCH = GCHandle.Alloc(logCallback); // Does not need to be pinned, see http://stackoverflow.com/a/19866119/316487 
+        }
+        ARUWP.aruwpRegisterLogCallback(logCallback);
+        if (lcb == null) {
+            logCallback = null;
+            logCallbackGCH.Free();
+        }
+    }
+
+    public static void aruwpSetLogLevel(int logLevel) {
+        ARUWP.aruwpSetLogLevel(logLevel);
+    }
+
+
 
     /// <summary>
     /// Convert row major 3x4 matrix to Matrix4x4

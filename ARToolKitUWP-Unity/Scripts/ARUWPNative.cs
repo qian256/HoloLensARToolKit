@@ -16,7 +16,13 @@ using System;
 /// Email:      lqian8@jhu.edu
 /// </summary>
 public static class ARUWP {
-    
+
+    [DllImport("ARToolKitUWP.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void aruwpRegisterLogCallback(ARUWPUtils.LogCallback callback);
+
+    [DllImport("ARToolKitUWP.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void aruwpSetLogLevel(int logLevel);
+
     [DllImport("ARToolKitUWP.dll")]
     [return: MarshalAs(UnmanagedType.I1)]
     public static extern bool aruwpInitialiseAR(int width, int height, int pixelFormat);
