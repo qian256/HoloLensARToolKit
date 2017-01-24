@@ -1,6 +1,6 @@
 #include "pch.h"
 #include <ARFrame.h>
-
+#include <ARController.h>
 
 #define MAX(x,y) (x > y ? x : y)
 #define MIN(x,y) (x < y ? x : y)
@@ -41,13 +41,13 @@ FrameSource::~FrameSource() {
 
 
 void FrameSource::configure(const char* cparaName, const char* cparaBuff, size_t cparaBuffLen) {
-	ARLOGd("FrameSource::configure(): called");
+	ARController::logv(AR_LOG_LEVEL_DEBUG, "FrameSource::configure(): called");
 
 	if (cparaName) {
 		size_t len = strlen(cparaName);
 		cameraParam = (char*)malloc(sizeof(char) * len + 1);
 		strcpy(cameraParam, cparaName);
-		ARLOGi("Settting camera parameters file '%s'.", cameraParam);
+		ARController::logv(AR_LOG_LEVEL_INFO, "Settting camera parameters file '%s'.", cameraParam);
 		cameraParamLoaded = false;
 	}
 
@@ -55,10 +55,10 @@ void FrameSource::configure(const char* cparaName, const char* cparaBuff, size_t
 		cameraParamBufferLen = cparaBuffLen;
 		cameraParamBuffer = (char*)malloc(sizeof(char) * cameraParamBufferLen);
 		memcpy(cameraParamBuffer, cparaBuff, cameraParamBufferLen);
-		ARLOGi("Settting camera parameters buffer: %ld bytes.", cameraParamBufferLen);
+		ARController::logv(AR_LOG_LEVEL_INFO, "Settting camera parameters buffer: %ld bytes.", cameraParamBufferLen);
 		cameraParamLoaded = false;
 	}
-	ARLOGd("FrameSource::configure(): exiting");
+	ARController::logv(AR_LOG_LEVEL_DEBUG, "FrameSource::configure(): exiting");
 }
 
 
@@ -68,32 +68,32 @@ bool FrameSource::open()
 	const char cparam_name_default[] = "camera_para.dat"; // Default name for the camera parameters.
 	if (cameraParamBuffer) {
 		if (arParamLoadFromBuffer(cameraParamBuffer, cameraParamBufferLen, &cparam) < 0) {
-			ARLOGe("FrameSource::open2: error-failed to load camera parameters from buffer, calling close(), exiting returning false");
+			ARController::logv(AR_LOG_LEVEL_ERROR, "FrameSource::open2: error-failed to load camera parameters from buffer, calling close(), exiting returning false");
 			this->close();
 			return false;
 		}
 		else {
-			ARLOGi("Camera parameters loaded from buffer.");
+			ARController::logv(AR_LOG_LEVEL_INFO, "Camera parameters loaded from buffer.");
 		}
 	}
 	else {
 		if (arParamLoad((cameraParam ? cameraParam : cparam_name_default), 1, &cparam) < 0) {
-			ARLOGe("ARWrapper::ARToolKitVideoSource::open2(): error-failed to load camera parameters %s, calling close(), exiting returning false",
+			ARController::logv(AR_LOG_LEVEL_ERROR, "ARWrapper::ARToolKitVideoSource::open2(): error-failed to load camera parameters %s, calling close(), exiting returning false",
 				(cameraParam ? cameraParam : cparam_name_default));
 			this->close();
 			return false;
 		}
 		else {
-			ARLOGi("Camera parameters loaded from file '%s'.", (cameraParam ? cameraParam : cparam_name_default));
+			ARController::logv(AR_LOG_LEVEL_INFO, "Camera parameters loaded from file '%s'.", (cameraParam ? cameraParam : cparam_name_default));
 		}
 	}
 
 	if (cparam.xsize != frameWidth || cparam.ysize != frameHeight) {
-		ARLOGd("*** Camera Parameter resized from %d, %d. ***", cparam.xsize, cparam.ysize);
+		ARController::logv(AR_LOG_LEVEL_DEBUG, "*** Camera Parameter resized from %d, %d. ***", cparam.xsize, cparam.ysize);
 		arParamChangeSize(&cparam, frameWidth, frameHeight, &cparam);
 	}
 	if (!(cparamLT = arParamLTCreate(&cparam, AR_PARAM_LT_DEFAULT_OFFSET))) {
-		ARLOGe("Error: Failed to create camera parameters lookup table.");
+		ARController::logv(AR_LOG_LEVEL_ERROR, "Error: Failed to create camera parameters lookup table.");
 		this->close();
 		return false;
 	}
@@ -103,7 +103,7 @@ bool FrameSource::open()
 
 bool FrameSource::close()
 {
-	ARLOGd("FrameSource::close(): called");
+	ARController::logv(AR_LOG_LEVEL_DEBUG, "FrameSource::close(): called");
 	cameraParamLoaded = false;
 	if (cparamLT) arParamLTFree(&cparamLT);
 	frameBuffer = NULL;

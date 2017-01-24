@@ -2,6 +2,7 @@
 #include <ARMarker.h>
 #include <ARMarkerSquare.h>
 #include <ARMarkerMulti.h>
+#include <ARController.h>
 
 
 #ifdef _WIN32
@@ -139,7 +140,7 @@ ARMarker* ARMarker::newWithConfig(const char* cfg, ARPattHandle *arPattHandle)
 		else {
 
 			// Unknown marker type
-			ARLOGe("Error: Unknown marker type.");
+			ARController::logv(AR_LOG_LEVEL_ERROR, "Error: Unknown marker type.");
 		}
 
 	}
@@ -190,7 +191,7 @@ void ARMarker::allocatePatterns(int count)
 
 void ARMarker::freePatterns()
 {
-	if (patternCount) ARLOGi("Freeing %d patterns on marker %d", patternCount, UID);
+	if (patternCount) ARController::logv(AR_LOG_LEVEL_INFO, "Freeing %d patterns on marker %d", patternCount, UID);
 
 	for (int i = 0; i < patternCount; i++) {
 		if (patterns[i]) {
@@ -273,18 +274,18 @@ bool ARMarker::update()
 		// Filter the pose estimate.
 		if (m_ftmi) {
 			if (arFilterTransMat(m_ftmi, trans, !visiblePrev) < 0) {
-				ARLOGe("arFilterTransMat error with marker %d.\n", UID);
+				ARController::logv(AR_LOG_LEVEL_ERROR, "arFilterTransMat error with marker %d.\n", UID);
 			}
 		}
 
 		if (!visiblePrev) {
-			ARLOGi("Marker %d now visible", UID);
+			ARController::logv(AR_LOG_LEVEL_INFO, "Marker %d now visible", UID);
 		}
 
 	}
 	else {
 		if (visiblePrev) {
-			ARLOGi("Marker %d no longer visible", UID);
+			ARController::logv(AR_LOG_LEVEL_INFO, "Marker %d no longer visible", UID);
 		}
 	}
 	return true;

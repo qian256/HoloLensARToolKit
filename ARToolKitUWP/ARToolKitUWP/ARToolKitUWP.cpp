@@ -3,16 +3,20 @@
 
 
 static ARController *gARTK = NULL;
+void CALL_CONV log(const char *msg);
+
 
 EXPORT_API bool aruwpInitialiseAR(int width, int height, int pixelSize)
 {
 	if (!gARTK) gARTK = new ARController(width, height, pixelSize);
+	gARTK->logCallback = log;
 	return gARTK->initialiseBase();
 }
 
 EXPORT_API bool aruwpInitialiseARWithOptions(int width, int height, int pixelSize, const int pattSize, const int pattCountMax)
 {
 	if (!gARTK) gARTK = new ARController(width, height, pixelSize);
+	gARTK->logCallback = log;
 	return gARTK->initialiseBase(pattSize, pattCountMax);
 }
 
@@ -191,7 +195,7 @@ EXPORT_API bool aruwpQueryMarkerVisibility(int markerUID)
 
 	if (!gARTK) return false;
 	if (!(marker = gARTK->findMarker(markerUID))) {
-		ARLOGe("arwQueryMarkerVisibility(): Couldn't locate marker with UID %d.", markerUID);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwQueryMarkerVisibility(): Couldn't locate marker with UID %d.", markerUID);
 		return false;
 	}
 	return marker->visible;
@@ -203,7 +207,7 @@ EXPORT_API bool aruwpQueryMarkerTransformation(int markerUID, ARdouble trans[12]
 
 	if (!gARTK) return false;
 	if (!(marker = gARTK->findMarker(markerUID))) {
-		ARLOGe("arwQueryMarkerTransformation(): Couldn't locate marker with UID %d.", markerUID);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwQueryMarkerTransformation(): Couldn't locate marker with UID %d.", markerUID);
 		return false;
 	}
 	memcpy(trans, marker->trans, sizeof(ARdouble) * 12);
@@ -217,7 +221,7 @@ EXPORT_API int aruwpGetMarkerPatternCount(int markerUID)
 
 	if (!gARTK) return 0;
 	if (!(marker = gARTK->findMarker(markerUID))) {
-		ARLOGe("arwGetMarkerPatternCount(): Couldn't locate marker with UID %d.", markerUID);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwQueryMarkerTransformation(): Couldn't locate marker with UID %d.", markerUID);
 		return 0;
 	}
 	return marker->patternCount;
@@ -230,12 +234,12 @@ EXPORT_API bool aruwpGetMarkerPatternConfig(int markerUID, int patternID, ARdoub
 
 	if (!gARTK) return false;
 	if (!(marker = gARTK->findMarker(markerUID))) {
-		ARLOGe("arwGetMarkerPatternConfig(): Couldn't locate marker with UID %d.", markerUID);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwGetMarkerPatternConfig(): Couldn't locate marker with UID %d.", markerUID);
 		return false;
 	}
 
 	if (!(p = marker->getPattern(patternID))) {
-		ARLOGe("arwGetMarkerPatternConfig(): Marker with UID %d has no pattern with ID %d.", markerUID, patternID);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwGetMarkerPatternConfig(): Marker with UID %d has no pattern with ID %d.", markerUID, patternID);
 		return false;
 	}
 
@@ -256,7 +260,7 @@ EXPORT_API bool aruwpGetMarkerOptionBool(int markerUID, int option)
 
 	if (!gARTK) return false;
 	if (!(marker = gARTK->findMarker(markerUID))) {
-		ARLOGe("arwGetMarkerOptionBool(): Couldn't locate marker with UID %d.", markerUID);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwGetMarkerOptionBool(): Couldn't locate marker with UID %d.", markerUID);
 		return false;
 	}
 
@@ -268,7 +272,7 @@ EXPORT_API bool aruwpGetMarkerOptionBool(int markerUID, int option)
 		if (marker->type == ARMarker::SINGLE) return (((ARMarkerSquare *)marker)->useContPoseEstimation);
 		break;
 	default:
-		ARLOGe("arwGetMarkerOptionBool(): Unrecognised option %d.", option);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwGetMarkerOptionBool(): Unrecognised option %d.", option);
 		break;
 	}
 	return(false);
@@ -280,7 +284,7 @@ EXPORT_API void aruwpSetMarkerOptionBool(int markerUID, int option, int value)
 
 	if (!gARTK) return;
 	if (!(marker = gARTK->findMarker(markerUID))) {
-		ARLOGe("arwSetMarkerOptionBool(): Couldn't locate marker with UID %d.", markerUID);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwSetMarkerOptionBool(): Couldn't locate marker with UID %d.", markerUID);
 		return;
 	}
 
@@ -292,7 +296,7 @@ EXPORT_API void aruwpSetMarkerOptionBool(int markerUID, int option, int value)
 		if (marker->type == ARMarker::SINGLE) ((ARMarkerSquare *)marker)->useContPoseEstimation = (value!=0);
 		break;
 	default:
-		ARLOGe("arwSetMarkerOptionBool(): Unrecognised option %d.", option);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwSetMarkerOptionBool(): Unrecognised option %d.", option);
 		break;
 	}
 }
@@ -303,7 +307,7 @@ EXPORT_API int aruwpGetMarkerOptionInt(int markerUID, int option)
 
 	if (!gARTK) return INT_MIN;
 	if (!(marker = gARTK->findMarker(markerUID))) {
-		ARLOGe("arwGetMarkerOptionBool(): Couldn't locate marker with UID %d.", markerUID);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwGetMarkerOptionBool(): Couldn't locate marker with UID %d.", markerUID);
 		return (INT_MIN);
 	}
 
@@ -312,7 +316,7 @@ EXPORT_API int aruwpGetMarkerOptionInt(int markerUID, int option)
 		if (marker->type == ARMarker::MULTI) return ((ARMarkerMulti *)marker)->config->min_submarker;
 		break;
 	default:
-		ARLOGe("arwGetMarkerOptionInt(): Unrecognised option %d.", option);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwGetMarkerOptionInt(): Unrecognised option %d.", option);
 		break;
 	}
 	return (INT_MIN);
@@ -324,7 +328,7 @@ EXPORT_API void aruwpSetMarkerOptionInt(int markerUID, int option, int value)
 
 	if (!gARTK) return;
 	if (!(marker = gARTK->findMarker(markerUID))) {
-		ARLOGe("arwSetMarkerOptionInt(): Couldn't locate marker with UID %d.", markerUID);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwSetMarkerOptionInt(): Couldn't locate marker with UID %d.", markerUID);
 		return;
 	}
 
@@ -333,7 +337,7 @@ EXPORT_API void aruwpSetMarkerOptionInt(int markerUID, int option, int value)
 		if (marker->type == ARMarker::MULTI) ((ARMarkerMulti *)marker)->config->min_submarker = value;
 		break;
 	default:
-		ARLOGe("arwSetMarkerOptionInt(): Unrecognised option %d.", option);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwSetMarkerOptionInt(): Unrecognised option %d.", option);
 		break;
 	}
 }
@@ -344,7 +348,7 @@ EXPORT_API ARdouble aruwpGetMarkerOptionFloat(int markerUID, int option)
 
 	if (!gARTK) return (NAN);
 	if (!(marker = gARTK->findMarker(markerUID))) {
-		ARLOGe("arwGetMarkerOptionBool(): Couldn't locate marker with UID %d.", markerUID);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwGetMarkerOptionBool(): Couldn't locate marker with UID %d.", markerUID);
 		return (NAN);
 	}
 
@@ -375,7 +379,7 @@ EXPORT_API ARdouble aruwpGetMarkerOptionFloat(int markerUID, int option)
 		else return (NAN);
 		break;
 	default:
-		ARLOGe("arwGetMarkerOptionFloat(): Unrecognised option %d.", option);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwGetMarkerOptionFloat(): Unrecognised option %d.", option);
 		break;
 	}
 	return (NAN);
@@ -387,7 +391,7 @@ EXPORT_API void aruwpSetMarkerOptionFloat(int markerUID, int option, ARdouble va
 
 	if (!gARTK) return;
 	if (!(marker = gARTK->findMarker(markerUID))) {
-		ARLOGe("arwSetMarkerOptionFloat(): Couldn't locate marker with UID %d.", markerUID);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwSetMarkerOptionFloat(): Couldn't locate marker with UID %d.", markerUID);
 		return;
 	}
 
@@ -410,9 +414,62 @@ EXPORT_API void aruwpSetMarkerOptionFloat(int markerUID, int option, ARdouble va
 		if (marker->type == ARMarker::MULTI) ((ARMarkerMulti *)marker)->config->cfPattCutoff = value;
 		break;
 	default:
-		ARLOGe("arwSetMarkerOptionFloat(): Unrecognised option %d.", option);
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwSetMarkerOptionFloat(): Unrecognised option %d.", option);
 		break;
 	}
 }
 
+
+
+
+
+static PFN_LOGCALLBACK logCallback = NULL;
+static DWORD logThreadID = 0;
+static int logDumpedWrongThreadCount = 0;
+
+
+// ----------------------------------------------------------------------------------------------------
+
+// When handed a logging callback, install it for use by our own log function,
+// and pass our own log function as the callback instead.
+// This allows us to use buffering to ensure that logging occurs only on the
+// same thread that registered the log callback, as required e.g. by C# interop.
+
+void CALL_CONV log(const char *msg)
+{
+	if (logCallback) {
+		if (GetCurrentThreadId() != logThreadID){
+			logDumpedWrongThreadCount++;
+			return;
+		}
+		if (logDumpedWrongThreadCount) {
+			char s[80];
+			sprintf(s, "%d log messages on non-main thread were dumped.\n", logDumpedWrongThreadCount);
+			logDumpedWrongThreadCount = 0;
+			logCallback(s);
+		}
+		logCallback(msg);
+	}
+	else {
+		LOGE("%s\n", msg);
+	}
+}
+
+EXPORT_API void aruwpRegisterLogCallback(PFN_LOGCALLBACK callback)
+{
+	logCallback = callback;
+	arLogSetLogger(callback, 1); // 1 -> only callback on same thread.
+	logThreadID = GetCurrentThreadId();
+	logDumpedWrongThreadCount = 0;
+	//char buf[256];
+	//_snprintf(buf, 256, "Registering log callback on thread %d.\n", logThreadID);
+	//log(buf);
+}
+
+EXPORT_API void aruwpSetLogLevel(const int logLevel)
+{
+	if (logLevel >= 0) {
+		arLogLevel = logLevel;
+	}
+}
 

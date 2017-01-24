@@ -7,6 +7,8 @@
 
 extern "C" {
 
+
+
 	EXPORT_API bool aruwpInitialiseAR(int width, int height, int pixelSize);
 	EXPORT_API bool aruwpInitialiseARWithOptions(int width, int height, int pixelSize, const int pattSize, const int pattCountMax);
 	EXPORT_API bool aruwpGetARToolKitVersion(char *buffer, int length);
@@ -127,6 +129,21 @@ extern "C" {
 	EXPORT_API void aruwpSetMarkerOptionFloat(int markerUID, int option, ARdouble value);
 	EXPORT_API int aruwpGetMarkerOptionInt(int markerUID, int option);
 	EXPORT_API ARdouble aruwpGetMarkerOptionFloat(int markerUID, int option);
+
+
+
+
+
+
+
+	/**
+	* Registers a callback function to use when a message is logged.
+	* If the callback is to become invalid, be sure to call this function with NULL
+	* first so that the callback is unregistered.
+	*/
+	EXPORT_API void aruwpRegisterLogCallback(PFN_LOGCALLBACK callback);
+
+	EXPORT_API void aruwpSetLogLevel(const int logLevel);
 }
 
 

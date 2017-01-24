@@ -14,6 +14,13 @@
 #include <string.h>
 
 
+
+#define CALL_CONV __stdcall
+#define LOGI(...) fprintf(stdout, __VA_ARGS__)
+#define LOGE(...) fprintf(stderr, __VA_ARGS__)
+typedef void (CALL_CONV *PFN_LOGCALLBACK)(const char* msg);
+
+
 /**
 * Wrapper for ARToolKit functionality. This class handles ARToolKit initialisation, updates,
 * and cleanup. It maintains a collection of markers, providing methods to add and remove them.
@@ -67,6 +74,10 @@ private:
 	bool initARMore(void);
 
 
+	static void logvBuf(va_list args, const char* format, char **bufPtr, int* lenPtr);
+	static void logvWriteBuf(char* buf, int len, const int logLevel);
+
+
 public:
 	ARController();
 	ARController(int width, int height, int pixelSize);
@@ -75,6 +86,20 @@ public:
 	* Destructor.
 	*/
 	~ARController();
+
+
+	static void logv(const int logLevel, const char* format, ...);
+
+	/**
+	* If a log callback has been set, then this passes the formatted message to it.
+	* If no log callback has been set, then the message is discarded.
+	* @param msg		The message to output. Follows the same formatting rules as printf().
+	*/
+	static void logv(const char* msg, ...);
+
+
+	static PFN_LOGCALLBACK logCallback;		///< Callback where log messages are passed to
+
 	/**
 	* Returns a string containing the ARToolKit version, such as "4.5.1".
 	* @return		The ARToolKit version

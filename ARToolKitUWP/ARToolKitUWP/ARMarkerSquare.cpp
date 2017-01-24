@@ -1,14 +1,10 @@
 #include "pch.h"
 #include <ARMarkerSquare.h>
+#include <ARController.h>
 
 #ifndef MAX
 #  define MAX(x,y) (x > y ? x : y)
 #endif
-
-// DEBUG
-#define ARLOGi printf
-#define ARLOGe printf
-#define ARLOGd printf
 
 
 ARMarkerSquare::ARMarkerSquare() : ARMarker(SINGLE),
@@ -57,12 +53,12 @@ bool ARMarkerSquare::initWithPatternFile(const char* path, ARdouble width, ARPat
 
 	if (m_loaded) unload();
 
-	ARLOGi("Loading single AR marker from file '%s', width %f.", path, width);
+	ARController::logv(AR_LOG_LEVEL_INFO, "Loading single AR marker from file '%s', width %f.", path, width);
 
 	m_arPattHandle = arPattHandle;
 	patt_id = arPattLoad(m_arPattHandle, path);
 	if (patt_id < 0) {
-		ARLOGe("Error: unable to load single AR marker from file '%s'.", path);
+		ARController::logv(AR_LOG_LEVEL_ERROR, "Error: unable to load single AR marker from file '%s'.", path);
 		arPattHandle = NULL;
 		return false;
 	}
@@ -87,12 +83,12 @@ bool ARMarkerSquare::initWithPatternFromBuffer(const char* buffer, ARdouble widt
 
 	if (m_loaded) unload();
 
-	ARLOGi("Loading single AR marker from buffer, width %f.", width);
+	ARController::logv(AR_LOG_LEVEL_INFO, "Loading single AR marker from buffer, width %f.", width);
 
 	m_arPattHandle = arPattHandle;
 	patt_id = arPattLoadFromBuffer(m_arPattHandle, buffer);
 	if (patt_id < 0) {
-		ARLOGe("Error: unable to load single AR marker from buffer.");
+		ARController::logv(AR_LOG_LEVEL_ERROR, "Error: unable to load single AR marker from buffer.");
 		return false;
 	}
 
@@ -115,7 +111,7 @@ bool ARMarkerSquare::initWithBarcode(int barcodeID, ARdouble width)
 
 	if (m_loaded) unload();
 
-	ARLOGi("Adding single AR marker with barcode %d, width %f.", barcodeID, width);
+	ARController::logv(AR_LOG_LEVEL_INFO, "Adding single AR marker with barcode %d, width %f.", barcodeID, width);
 
 	patt_id = barcodeID;
 
@@ -151,7 +147,7 @@ void ARMarkerSquare::setConfidenceCutoff(ARdouble value)
 
 bool ARMarkerSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle *ar3DHandle) {
 
-	ARLOGd("ARMarkerSquare::update(), id: %d\n", patt_id);
+	ARController::logv(AR_LOG_LEVEL_DEBUG, "ARMarkerSquare::update(), id: %d\n", patt_id);
 
 	if (patt_id < 0) return false;	// Can't update if no pattern loaded
 
