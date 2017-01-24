@@ -11,7 +11,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: CAMP
-  productName: HoloLensARToolKitSample
+  productName: HoloLensARToolKitMulti
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13333334, g: 0.17254902, b: 0.21176471, a: 1}
@@ -384,7 +384,7 @@ PlayerSettings:
   additionalIl2CppArgs: 
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: HoloLensARToolKitSample
+  metroPackageName: HoloLensARToolKitMulti
   metroPackageVersion: 1.0.0.0
   metroCertificatePath: Assets\WSATestCertificate.pfx
   metroCertificatePassword: 
@@ -393,7 +393,7 @@ PlayerSettings:
   metroCertificateNotAfter: 804d09c5ac91d301
   metroApplicationDescription: ARToolKit running on HoloLens
   wsaImages: {}
-  metroTileShortName: HoloLensARToolKitSample
+  metroTileShortName: HoloLensARToolKitMulti
   metroCommandLineArgsFile: 
   metroTileShowName: 0
   metroMediumTileShowName: 0

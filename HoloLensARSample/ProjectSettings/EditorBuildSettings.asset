@@ -13,3 +13,5 @@ EditorBuildSettings:
     path: Assets/Sample/HoloLensARToolKitMulti.unity
   - enabled: 0
     path: Assets/Sample/HoloLensARToolKitSingle.unity
+  - enabled: 0
+    path: Assets/Sample/HoloLensARToolKitCube.unity
