@@ -44,6 +44,15 @@ The top-left 2D plane visualizes the current camera frame. Frame rate of renderi
 7. See the effect.
 	* HoloLens clicker is able to tune the visualization of camera frame image.
 
+
+---
+
+## Understand HoloLensARToolKit
+- [My blog post](https://longqian.me/2017/01/20/artoolkit-on-hololens/)
+- [Coordinate Systems in HoloLensARToolKit](https://github.com/qian256/HoloLensARToolKit/wiki/Coordinate-Systems)
+- [Unity Native Coding](https://github.com/qian256/HoloLensARToolKit/wiki/Unity-Native-Coding)
+
+
 ---
 
 ## Do more with HoloLensARToolKit
