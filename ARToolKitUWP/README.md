@@ -4,7 +4,7 @@ ARToolKit Wrapper for UWP (Universal Windows Platform)
 
 Author: [Long Qian](https://longqian.me/aboutme)
 
-Date: 2017-01-20
+Date: 2017-01-24
 
 ## Overview
 ARWrapper library provided by [ARToolKit](https://github.com/artoolkit/artoolkit5) is compatible with multiple platforms, but not with UWP yet. This project intends to fill this gap. The native library built by this project consumes UWP runtime, and can be accessed by .NET applications via [PInovoke](http://www.pinvoke.net/).
@@ -28,3 +28,14 @@ The exported functions from this dll are listed in ```ARToolKitUWP.h```.
 
 ## For Unity3D and HoloLens
 Place the built library in Unity project folder: ```Assets/Plugins/WSA/x86/```.
+
+
+---
+
+## License
+ARToolKitUWP is open for use in compliance with [GNU Lesser General Public License (LGPL v3.0)](https://www.gnu.org/licenses/lgpl-3.0.en.html). Please see COPYING and COPYING.LESSER for license details.
+
+ARToolKitUWP is a modified version of ARToolKit, statically links against ARToolKit binaries, and therefore complies with the license restrictions of ARToolKit (see [details](https://github.com/artoolkit/artoolkit5)).
+
+
+

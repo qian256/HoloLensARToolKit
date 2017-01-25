@@ -2,7 +2,7 @@ HoloLens with ARToolKit
 ===
 Author: [Long Qian](https://longqian.me/aboutme)
 
-Date: 2017-01-19
+Date: 2017-01-24
 
 ## Overview
 **HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us), or generally UWP (Universal Windows Platform).
@@ -49,16 +49,23 @@ The top-left 2D plane visualizes the current camera frame. Frame rate of renderi
 
 ## Understand HoloLensARToolKit
 - [My blog post](https://longqian.me/2017/01/20/artoolkit-on-hololens/)
-- [Coordinate Systems in HoloLensARToolKit](https://github.com/qian256/HoloLensARToolKit/wiki/Coordinate-Systems)
-- [Unity Native Coding](https://github.com/qian256/HoloLensARToolKit/wiki/Unity-Native-Coding)
+- [Coordinate systems in HoloLensARToolKit](https://github.com/qian256/HoloLensARToolKit/wiki/Coordinate-Systems)
+- [Unity native programming](https://github.com/qian256/HoloLensARToolKit/wiki/Unity-Native-Coding)
 
-
----
 
 ## Do more with HoloLensARToolKit
 - Integrate HoloLensARToolKit package with your application.
 - Customize native library of ARToolKitUWP.
 - Customize Unity package ARToolKitUWP-Unity.
 - Calibrate your HoloLens camera.
+
+
+---
+
+## License
+HoloLensARToolKit is composed of two separate projects: ARToolKitUWP and ARToolKitUWP-Unity (including samples). Both of them are open for use in compliance with [GNU Lesser General Public License (LGPL v3.0)](https://www.gnu.org/licenses/lgpl-3.0.en.html). Please see COPYING and COPYING.LESSER for license details.
+
+ARToolKitUWP is a modified version of ARToolKit, statically links against ARToolKit binaries, and therefore complies with the license restrictions of ARToolKit (see [details](https://github.com/artoolkit/artoolkit5)).
+
 
 

@@ -4,7 +4,7 @@ Unity3D package interfacing ARToolKitUWP, with C# scripts, pre-built plugin, cus
 
 Author: [Long Qian](https://longqian.me/aboutme)
 
-Date: 2017-01-20
+Date: 2017-01-24
 
 ## Scripts
 - ```ARUWPNative.cs``` directly interfaces with ARToolKitUWP wrapper. It defines the entry point of native functions with parameter correctly marshaled, and various constants used for tracking configuration.
@@ -28,4 +28,10 @@ The following images are screenshots of Unity inspector of ARUWPController and A
 	<td align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22160313/d482b582-df12-11e6-88e3-3f1f03e0fef7.png" /></td>
 </tr>
 </table>
+
+
+---
+
+## License
+ARToolKitUWP-Unity (including samples) is open for use in compliance with [GNU Lesser General Public License (LGPL v3.0)](https://www.gnu.org/licenses/lgpl-3.0.en.html). Please see COPYING and COPYING.LESSER for license details.
 
