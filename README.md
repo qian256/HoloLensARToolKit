@@ -17,8 +17,7 @@ This repository contains:
 
 ## Example
 
-This video is captured in HoloLens Device Portal demontrating the result of marker tracking on HoloLens.
-[![Video demo](https://img.youtube.com/vi/cMzNyJkr3X0/0.jpg)](https://www.youtube.com/watch?v=cMzNyJkr3X0)
+Check out [video demo](https://www.youtube.com/watch?v=cMzNyJkr3X0) on Youtube.
 
 Following are two screenshots taken in HoloLens Device Portal:
 <table border=0>
@@ -52,9 +51,9 @@ The top-left 2D plane visualizes the current camera frame. Frame rate of renderi
 ---
 
 ## Understand HoloLensARToolKit
-- [My blog post](https://longqian.me/2017/01/20/artoolkit-on-hololens/)
+- [My blog post](http://longqian.me/2017/01/20/artoolkit-on-hololens/)
 - [Coordinate systems in HoloLensARToolKit](https://github.com/qian256/HoloLensARToolKit/wiki/Coordinate-Systems)
-- [Unity native programming](https://github.com/qian256/HoloLensARToolKit/wiki/Unity-Native-Coding)
+- [Unity native programming](http://longqian.me/2017/01/29/unity-native-programming/)
 
 
 ## Do more with HoloLensARToolKit
