@@ -16,6 +16,10 @@ This repository contains:
 - Camera calibration of HoloLens
 
 ## Example
+
+This video is captured in HoloLens Device Portal demontrating the result of marker tracking on HoloLens.
+[![Video demo](https://img.youtube.com/vi/cMzNyJkr3X0/0.jpg)](https://www.youtube.com/watch?v=cMzNyJkr3X0)
+
 Following are two screenshots taken in HoloLens Device Portal:
 <table border=0>
 <tr>
