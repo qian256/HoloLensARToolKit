@@ -1,6 +1,6 @@
 HoloLens with ARToolKit
 ===
-Author: [Long Qian](https://longqian.me/aboutme)
+Author: [Long Qian](http://longqian.me/aboutme)
 
 Date: 2017-01-24
 
@@ -17,7 +17,7 @@ This repository contains:
 
 ## Example
 
-Check out [video demo](https://www.youtube.com/watch?v=cMzNyJkr3X0) on Youtube.
+Check out [**video demo**](https://www.youtube.com/watch?v=cMzNyJkr3X0) on Youtube.
 
 Following are two screenshots taken in HoloLens Device Portal:
 <table border=0>
