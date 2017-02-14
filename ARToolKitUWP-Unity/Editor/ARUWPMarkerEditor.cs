@@ -55,6 +55,7 @@ public class ARUWPMarkerEditor : Editor {
         oMinConfSubMatrix_Prop,
         oMinConfSubPattern_Prop,
         target_Prop,
+        anchoredToWorld_Prop,
         applyRotation_Prop,
         applyTranslation_Prop,
         confidenceTextBox_Prop,
@@ -77,6 +78,7 @@ public class ARUWPMarkerEditor : Editor {
         oMinConfSubMatrix_Prop = serializedObject.FindProperty("oMinConfSubMatrix");
         oMinConfSubPattern_Prop = serializedObject.FindProperty("oMinConfSubPattern");
         target_Prop = serializedObject.FindProperty("target");
+        anchoredToWorld_Prop = serializedObject.FindProperty("anchoredToWorld");
         applyRotation_Prop = serializedObject.FindProperty("applyRotation");
         applyTranslation_Prop = serializedObject.FindProperty("applyTranslation");
         confidenceTextBox_Prop = serializedObject.FindProperty("confidenceTextBox");
@@ -131,6 +133,7 @@ public class ARUWPMarkerEditor : Editor {
             }
         }
         EditorGUILayout.PropertyField(target_Prop, new GUIContent("Visualization target"));
+        EditorGUILayout.PropertyField(anchoredToWorld_Prop, new GUIContent("Anchored To World"));
         EditorGUILayout.PropertyField(applyRotation_Prop, new GUIContent("Apply rotation"));
         EditorGUILayout.PropertyField(applyTranslation_Prop, new GUIContent("Apply translation"));
 

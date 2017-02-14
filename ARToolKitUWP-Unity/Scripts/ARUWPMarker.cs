@@ -95,6 +95,7 @@ public class ARUWPMarker : MonoBehaviour{
 
     // visualization
     public GameObject target = null;
+    public bool anchoredToWorld = true;
     public bool applyRotation = true;
     public bool applyTranslation = true;
     // visualization for single marker
@@ -104,6 +105,8 @@ public class ARUWPMarker : MonoBehaviour{
     private int id = -1;
 
     // runtime property
+    private GameObject HoloLensCamera;
+    private GameObject dummyGameObject;
     private bool visible = false;
     private float confidence;
     private float[] trans = new float[12];
@@ -113,7 +116,19 @@ public class ARUWPMarker : MonoBehaviour{
        
 
     void Start() {
-        ;
+        HoloLensCamera = GameObject.Find("Main Camera");
+        if (HoloLensCamera == null) {
+            Debug.Log(TAG + ": Main Camera does not exist in the scene");
+        }
+        else {
+            if (!anchoredToWorld) {
+                target.transform.SetParent(HoloLensCamera.transform);
+            }
+            else {
+                dummyGameObject = new GameObject("Dummy");
+                dummyGameObject.transform.SetParent(HoloLensCamera.transform);
+            }
+        }
     }
 
 
@@ -129,12 +144,22 @@ public class ARUWPMarker : MonoBehaviour{
         }
         // visulization for all
         if (target != null && visible) {
-            if (applyRotation) {
-                target.transform.localRotation = ARUWPUtils.QuaternionFromMatrix(transMatrix);
+            if (!anchoredToWorld) {
+                if (applyRotation) {
+                    target.transform.localRotation = ARUWPUtils.QuaternionFromMatrix(transMatrix);
+                }
+                if (applyTranslation) {
+                    target.transform.localPosition = ARUWPUtils.PositionFromMatrix(transMatrix);
+                }
             }
-            if (applyTranslation) {
-                target.transform.localPosition = ARUWPUtils.PositionFromMatrix(transMatrix);
-                // Debug.Log(TAG + ": Current local position " + target.transform.localPosition);
+            else {
+                if (applyRotation) {
+                    dummyGameObject.transform.localRotation = ARUWPUtils.QuaternionFromMatrix(transMatrix);
+                }
+                if (applyTranslation) {
+                    dummyGameObject.transform.localPosition = ARUWPUtils.PositionFromMatrix(transMatrix);
+                }
+                ARUWPUtils.SetMatrix4x4ToGameObject(ref target, dummyGameObject.transform.localToWorldMatrix);
             }
         }
     }

@@ -6,12 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Sample/HoloLensARToolKit.unity
-  - enabled: 0
-    path: Assets/Calibrate/HoloLensARCalibrate.unity
-  - enabled: 1
     path: Assets/Sample/HoloLensARToolKitMulti.unity
-  - enabled: 0
+  - enabled: 1
     path: Assets/Sample/HoloLensARToolKitSingle.unity
   - enabled: 0
     path: Assets/Sample/HoloLensARToolKitCube.unity
