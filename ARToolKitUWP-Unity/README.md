@@ -4,7 +4,7 @@ Unity3D package interfacing ARToolKitUWP, with C# scripts, pre-built plugin, cus
 
 Author: [Long Qian](http://longqian.me/aboutme)
 
-Date: 2017-01-24
+Date: 2017-02-14
 
 ## Scripts
 - ```ARUWPNative.cs``` directly interfaces with ARToolKitUWP wrapper. It defines the entry point of native functions with parameter correctly marshaled, and various constants used for tracking configuration.
@@ -18,16 +18,11 @@ Files in this folder are shipped with the application, which means they will als
 
 ```hololens896x504.dat``` is the camera calibration file of my HoloLens locatable camera. Details can be found in this [repository](https://github.com/qian256/HoloLensCamCalib/tree/master).
 
-## How does it look like?
-The following images are screenshots of Unity inspector of ARUWPController and ARUWPMarker.
-<table border=0>
-<tr>
-	<td align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22160312/d4821bfe-df12-11e6-80cf-cfbfc7f4b5be.png" /></td>
-</tr>
-<tr>
-	<td align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22160313/d482b582-df12-11e6-88e3-3f1f03e0fef7.png" /></td>
-</tr>
-</table>
+## How to use the scripts?
+
+- [ARToolKitUWP controller options]()
+- [ARToolKitUWP marker options]()
+
 
 
 ---

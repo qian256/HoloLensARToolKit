@@ -2,7 +2,7 @@ HoloLens with ARToolKit
 ===
 Author: [Long Qian](http://longqian.me/aboutme)
 
-Date: 2017-01-24
+Date: 2017-02-14
 
 ## Overview
 **HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us), or generally UWP (Universal Windows Platform).
@@ -12,25 +12,21 @@ With fiducial marker tracking provided by ARToolKit, plus the indoor localizatio
 This repository contains:
 - Wrapper of [ARToolKit5](https://github.com/artoolkit/artoolkit5) for UWP
 - Unity package to interface the native library
-- A sample Unity application to demo the use of them
-- Camera calibration of HoloLens
+- Some sample Unity scenes to demo the use of them
+- Link to camera calibration of HoloLens
 
 ## Example
 
-Check out [**video demo**](https://www.youtube.com/watch?v=cMzNyJkr3X0) on Youtube.
-
-Following are two screenshots taken in HoloLens Device Portal:
 <table border=0>
 <tr>
-	<td align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22189679/0a6f8a6e-e0ec-11e6-8563-ecae01e7d294.jpg" /></td>
-	<td align="center" width="50%"><img src="https://cloud.githubusercontent.com/assets/8185982/22190907/907d311c-e0f4-11e6-84b4-91b47586b008.jpg" /></td>
+	<td align="center" width="50%"><img src="http://longqian.me/public/image/artoolkit-hololens-minion-thumb.png" /></td>
+	<td align="center" width="50%"><img src="http://longqian.me/public/image/artoolkit-hololens-samples-thumb.png" /></td>
 </tr>
 <tr>
-	<td align="center">Multiple Marker Tracking</td>
-	<td align="center">Cube Marker Tracking</td>
+	<td align="center">Minion on the Cube (<a href="https://youtu.be/cMzNyJkr3X0">Watch on Youtube</a>)</td>
+	<td align="center">HoloLensARToolKit Samples(<a href="https://youtu.be/PqT90QfgP-U">Watch on Youtube</a>)</td>
 </tr>
 </table>
-The top-left 2D plane visualizes the current camera frame. Frame rate of rendering and frame rate of tracking are displayed on the top-right corner.
 
 ## Run the sample
 1. Make sure you have [HoloLens development tools](https://developer.microsoft.com/en-us/windows/holographic/install_the_tools) installed.
@@ -39,21 +35,25 @@ The top-left 2D plane visualizes the current camera frame. Frame rate of renderi
 3. Import the unity package ```ARToolKitUWP.unitypackage```.
 4. Open one of the sample scenes
 	* ```Assets/Sample/HoloLensARToolKitSingle.unity```
-	* ```Assets/Sample/HoloLensARToolKitMulti.unity```
 	* ```Assets/Sample/HoloLensARToolKitCube.unity```
+	* ```Assets/Sample/HoloLensARToolKitMulti.unity```
 5. Configure HoloLens deployment settings and deploy to HoloLens.
 	* See Chapter 4 and 5 of [Holograms 100](https://developer.microsoft.com/en-us/windows/holographic/holograms_100).
 6. Prepare the correspondent printed marker of ARToolKit.
+	* Marker images are [Here](https://github.com/artoolkit/artoolkit5/tree/master/doc/patterns).
+	* Make sure the printed marker size is same as configured in Unity.
 7. See the effect.
-	* HoloLens clicker is able to tune the visualization of camera frame image.
+	* **HoloLens clicker** or **air tap** is able to tune the visualization of camera frame.
 
 
 ---
 
 ## Understand HoloLensARToolKit
-- [My blog post](http://longqian.me/2017/01/20/artoolkit-on-hololens/)
-- [Coordinate systems in HoloLensARToolKit](https://github.com/qian256/HoloLensARToolKit/wiki/Coordinate-Systems)
+- [ARToolKit on HoloLens](http://longqian.me/2017/01/20/artoolkit-on-hololens/)
+- [ARToolKitUWP controller options]()
+- [ARToolKitUWP marker options]()
 - [Unity native programming](http://longqian.me/2017/01/29/unity-native-programming/)
+- [Coordinate systems in HoloLensARToolKit]()
 
 
 ## Do more with HoloLensARToolKit

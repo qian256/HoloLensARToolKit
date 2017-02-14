@@ -16,7 +16,7 @@ ARWrapper library provided by [ARToolKit](https://github.com/artoolkit/artoolkit
 - ARICP.lib
 - ARMulti.lib
 
-Therefore, this wrapper is capable of detecting single-pattern markers and multi-pattern markers. NFT (Natural Feature Marker) is not supported right now, because of its various unsatisfied dependencies on UWP.
+Therefore, this wrapper is capable of detecting single-pattern markers and multi-pattern markers. **NFT (Natural Feature Marker) is not supported right now**, because of its various unsatisfied dependencies on UWP.
 
 ## Exported APIs
 The exported functions from this dll are listed in ```ARToolKitUWP.h```.
