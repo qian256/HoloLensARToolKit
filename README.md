@@ -23,15 +23,15 @@ This repository contains:
 	<td align="center" width="50%"><img src="http://longqian.me/public/image/artoolkit-hololens-samples-thumb.png" /></td>
 </tr>
 <tr>
-	<td align="center">Minion on the Cube (<a href="https://youtu.be/cMzNyJkr3X0">Watch on Youtube</a>)</td>
-	<td align="center">HoloLensARToolKit Samples(<a href="https://youtu.be/PqT90QfgP-U">Watch on Youtube</a>)</td>
+	<td align="center">Minion on the Cube (<a href="https://youtu.be/cMzNyJkr3X0"><b>Youtube Video</b></a>)</td>
+	<td align="center">HoloLensARToolKit Samples (<a href="https://youtu.be/PqT90QfgP-U"><b>Youtube Video</b></a>)</td>
 </tr>
 </table>
 
 ## Run the sample
 1. Make sure you have [HoloLens development tools](https://developer.microsoft.com/en-us/windows/holographic/install_the_tools) installed.
 	* HoloLens Emulator and Vuforia are not required.
-2. Launch Unity3D, open project folder ```HoloLensARSample```.
+2. Launch [Unity3D](https://unity3d.com/), open project folder ```HoloLensARSample```.
 3. Import the unity package ```ARToolKitUWP.unitypackage```.
 4. Open one of the sample scenes
 	* ```Assets/Sample/HoloLensARToolKitSingle.unity```
@@ -49,11 +49,12 @@ This repository contains:
 ---
 
 ## Understand HoloLensARToolKit
-- [ARToolKit on HoloLens](http://longqian.me/2017/01/20/artoolkit-on-hololens/)
-- [ARToolKitUWP controller options]()
-- [ARToolKitUWP marker options]()
+- [Overview: ARToolKit on HoloLens](http://longqian.me/2017/01/20/artoolkit-on-hololens/)
+- [ARUWPController options](http://longqian.me/2017/02/14/hololens-artoolkit-controller/)
+- [ARUWPMarker options](http://longqian.me/2017/02/14/hololens-artoolkit-marker/)
 - [Unity native programming](http://longqian.me/2017/01/29/unity-native-programming/)
-- [Coordinate systems in HoloLensARToolKit]()
+- [Coordinate systems in HoloLensARToolKit](http://longqian.me/2017/02/14/hololens-artoolkit-coordinates/)
+- [Asynchronous computation in .NET]()
 
 
 ## Do more with HoloLensARToolKit
