@@ -139,7 +139,7 @@ public static class ARUWPUtils {
     /// <summary>
     /// Logging 4x4 row major matrix
     /// </summary>
-    private static void LogMatrixRowMajor(float[] mat) {
+    public static void LogMatrixRowMajor(float[] mat) {
         var str1 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[0], mat[1], mat[2], mat[3]);
         var str2 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[4], mat[5], mat[6], mat[7]);
         var str3 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[8], mat[9], mat[10], mat[11]);
@@ -151,7 +151,18 @@ public static class ARUWPUtils {
     /// Logging 4x4 column major matrix.
     /// ARToolKit returns column major matrix for ARPatterns
     /// </summary>
-    private static void LogMatrixColumnMajor(float[] mat) {
+    public static void LogMatrixColumnMajor(float[] mat) {
+        var str1 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[0], mat[4], mat[8], mat[12]);
+        var str2 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[1], mat[5], mat[9], mat[13]);
+        var str3 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[2], mat[6], mat[10], mat[14]);
+        var str4 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[3], mat[7], mat[11], mat[15]);
+        Debug.Log(str1 + str2 + str3 + str4);
+    }
+
+    /// <summary>
+    /// Logging 4x4 Matrix4x4
+    /// </summary>
+    public static void LogMatrix4x4(Matrix4x4 mat) {
         var str1 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[0], mat[4], mat[8], mat[12]);
         var str2 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[1], mat[5], mat[9], mat[13]);
         var str3 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[2], mat[6], mat[10], mat[14]);

@@ -20,8 +20,8 @@ Files in this folder are shipped with the application, which means they will als
 
 ## How to use the scripts?
 
-- [ARToolKitUWP controller options]()
-- [ARToolKitUWP marker options]()
+- [ARToolKitUWP controller options](http://longqian.me/2017/02/14/hololens-artoolkit-controller/)
+- [ARToolKitUWP marker options](http://longqian.me/2017/02/14/hololens-artoolkit-marker/)
 
 
 

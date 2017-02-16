@@ -112,30 +112,30 @@ public class ARUWPMarkerEditor : Editor {
                 break;
         }
 
-        EditorGUILayout.PropertyField(showOptions_Prop, new GUIContent("Show options"));
+        EditorGUILayout.PropertyField(showOptions_Prop, new GUIContent("Show Options"));
         bool showOptions = showOptions_Prop.boolValue;
         if (showOptions) {
             EditorGUILayout.PropertyField(oFiltered_Prop, new GUIContent("Filtered"));
             bool oFiltered = oFiltered_Prop.boolValue;
             if (oFiltered) {
-                EditorGUILayout.PropertyField(oSampleRate_Prop, new GUIContent("Sample rate"));
-                EditorGUILayout.PropertyField(oCutOffFreq_Prop, new GUIContent("Cutoff frequency"));
+                EditorGUILayout.PropertyField(oSampleRate_Prop, new GUIContent("Sample Rate"));
+                EditorGUILayout.PropertyField(oCutOffFreq_Prop, new GUIContent("Cutoff Frequency"));
             }
             // single markers
             if (type != ARUWPMarker.MarkerType.multi) {
                 EditorGUILayout.PropertyField(oUseContPoseEst_Prop, new GUIContent("Continuous Pose Estimation"));
-                EditorGUILayout.PropertyField(oConfCutOff_Prop, new GUIContent("Confidence cutoff"));
+                EditorGUILayout.PropertyField(oConfCutOff_Prop, new GUIContent("Confidence Cutoff"));
             }
             else {
-                EditorGUILayout.PropertyField(oMinSubMarkers_Prop, new GUIContent("Minimum sub markers"));
-                EditorGUILayout.PropertyField(oMinConfSubMatrix_Prop, new GUIContent("Minumum sub matrix confidence"));
-                EditorGUILayout.PropertyField(oMinConfSubPattern_Prop, new GUIContent("Minumum sub pattern confidence"));
+                EditorGUILayout.PropertyField(oMinSubMarkers_Prop, new GUIContent("Minimum Sub Markers"));
+                EditorGUILayout.PropertyField(oMinConfSubMatrix_Prop, new GUIContent("Minumum Sub Matrix Confidence"));
+                EditorGUILayout.PropertyField(oMinConfSubPattern_Prop, new GUIContent("Minumum Sub Pattern Confidence"));
             }
         }
-        EditorGUILayout.PropertyField(target_Prop, new GUIContent("Visualization target"));
-        EditorGUILayout.PropertyField(anchoredToWorld_Prop, new GUIContent("Anchored To World"));
-        EditorGUILayout.PropertyField(applyRotation_Prop, new GUIContent("Apply rotation"));
-        EditorGUILayout.PropertyField(applyTranslation_Prop, new GUIContent("Apply translation"));
+        EditorGUILayout.PropertyField(target_Prop, new GUIContent("Visualization Target"));
+        EditorGUILayout.PropertyField(anchoredToWorld_Prop, new GUIContent("Anchored to World"));
+        EditorGUILayout.PropertyField(applyRotation_Prop, new GUIContent("Apply Rotation"));
+        EditorGUILayout.PropertyField(applyTranslation_Prop, new GUIContent("Apply Translation"));
 
         if (type != ARUWPMarker.MarkerType.multi) {
             EditorGUILayout.PropertyField(confidenceTextBox_Prop, new GUIContent("Confidence Textbox"));
