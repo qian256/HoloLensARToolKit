@@ -7,7 +7,11 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 0
     path: Assets/Sample/HoloLensARToolKitMulti.unity
-  - enabled: 1
+  - enabled: 0
     path: Assets/Sample/HoloLensARToolKitSingle.unity
   - enabled: 0
     path: Assets/Sample/HoloLensARToolKitCube.unity
+  - enabled: 0
+    path: Assets/Experimental/HoloLensARToolKitCalib.unity
+  - enabled: 1
+    path: Assets/Experimental/HoloLensARToolKitShot.unity
