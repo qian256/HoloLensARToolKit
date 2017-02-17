@@ -10,7 +10,7 @@ Date: 2017-01-24
 ARWrapper library provided by [ARToolKit](https://github.com/artoolkit/artoolkit5) is compatible with multiple platforms, but not with UWP yet. This project intends to fill this gap. The native library built by this project consumes UWP runtime, and can be accessed by .NET applications via [PInovoke](http://www.pinvoke.net/).
 
 ## What's in?
-```ARToolKitUWP.sln``` solution builds a dynamic link library for x86, namely, ```ARToolKitUWP.dll```. This library incorperates the following ARToolKit components:  
+```ARToolKitUWP.sln``` solution builds a dynamic link library for x86, namely, ```ARToolKitUWP.dll```. This library incorperates the following ARToolKit (v5.3.2) components:  
 - AR.lib
 - AR2.lib
 - ARICP.lib
