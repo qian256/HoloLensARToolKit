@@ -129,6 +129,8 @@ public class ARUWPMarker : MonoBehaviour{
                 dummyGameObject.transform.SetParent(HoloLensCamera.transform);
             }
         }
+        // magic function initialization
+        initMagicFunction();
     }
 
 
@@ -165,12 +167,14 @@ public class ARUWPMarker : MonoBehaviour{
     }
 
 
+
     // return true if visible
     // return false if error or invisible
     public bool updateMarkerTracking() {
         if (id != -1) {
             if (ARUWP.aruwpQueryMarkerTransformation(id, trans)) {
                 transMatrix = ARUWPUtils.ConvertARUWPFloatArrayToMatrix4x4(trans);
+                if (performMagicFunction) { MagicFunction(); }
                 if (type != MarkerType.multi) {
                     confidence = ARUWP.aruwpGetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE);
                 }
@@ -464,5 +468,37 @@ public class ARUWPMarker : MonoBehaviour{
     public byte[] getSingleBufferBuffer() {
         return singleBufferBuffer;
     }
+
+
+
+    #region magic functions
+    private Matrix4x4 magicMatrix1 = Matrix4x4.identity;
+    private Matrix4x4 magicMatrix2 = Matrix4x4.identity;
+    private bool performMagicFunction = true;
+    public void setMagicFunction(Matrix4x4 m1, Matrix4x4 m2) {
+        magicMatrix1 = m1;
+        magicMatrix2 = m2;
+    }
+
+    public void enableMagicFunction(bool perf) {
+        performMagicFunction = perf;
+    }
+
+    private void initMagicFunction() {
+        magicMatrix1.SetRow(0, new Vector4(0.912590966818f, 0.00264415233376f, -0.0128817795355f, 0.000747730441087f));
+        magicMatrix1.SetRow(1, new Vector4(-0.00522566480145f, 0.906864775491f, -0.0896724176439f, 0.0177872745822f));
+        magicMatrix1.SetRow(2, new Vector4(-0.0232595319748f, 0.00845030987907f, 0.887221375125f, 0.0730807968318f));
+        magicMatrix2.SetRow(0, new Vector4(0.999970522935f, 0.00515075228031f, 0.00569412074919f, 0.0f));
+        magicMatrix2.SetRow(1, new Vector4(-0.00483183598788f, 0.998492806032f, -0.0546696411472f, 0.0f));
+        magicMatrix2.SetRow(2, new Vector4(-0.00596712838354f, 0.0546405165891f, 0.998488260985f, 0.0f));
+    }
+
+    private void MagicFunction() {
+        Vector4 vp = magicMatrix1 * transMatrix.GetColumn(3);
+        transMatrix = magicMatrix2 * transMatrix;
+        transMatrix.SetColumn(3, vp);
+    }
+
+    #endregion
 
 }
