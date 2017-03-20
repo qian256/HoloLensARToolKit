@@ -46,7 +46,6 @@ This repository contains:
 	* **HoloLens clicker** or **air tap** is able to tune the visualization of camera frame.
 
 
----
 
 ## Understand HoloLensARToolKit
 - [Overview: ARToolKit on HoloLens](http://longqian.me/2017/01/20/artoolkit-on-hololens/)
@@ -57,11 +56,21 @@ This repository contains:
 - [Asynchronous computation in .NET]()
 
 
-## Do more with HoloLensARToolKit
-- Integrate HoloLensARToolKit package with your application.
-- Customize native library of ARToolKitUWP.
-- Customize Unity package ARToolKitUWP-Unity.
-- Calibrate your HoloLens camera.
+---
+
+## Academic Citation
+
+If this work helps your research, please cite the following paper:
+
+```tex
+@online{1703.05834,
+  Author = {Long Qian and Ehsan Azimi and Peter Kazanzides and Nassir Navab},
+  Title = {Comprehensive Tracker Based Display Calibration for Holographic Optical See-Through Head-Mounted Display},
+  Year = {2017},
+  Eprint = {1703.05834},
+  Eprinttype = {arXiv},
+}
+```
 
 
 ---
