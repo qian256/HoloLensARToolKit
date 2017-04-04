@@ -29,7 +29,7 @@ This repository contains:
 </table>
 
 ## Run the sample
-1. Make sure you have [HoloLens development tools](https://developer.microsoft.com/en-us/windows/holographic/install_the_tools) installed.
+1. Make sure you have [HoloLens development tools](https://developer.microsoft.com/en-us/windows/mixed-reality/install_the_tools) installed.
 	* HoloLens Emulator and Vuforia are not required.
 2. Launch [Unity3D](https://unity3d.com/), open project folder ```HoloLensARSample```.
 3. Import the unity package ```ARToolKitUWP.unitypackage```.
@@ -38,7 +38,7 @@ This repository contains:
 	* ```Assets/Sample/HoloLensARToolKitCube.unity```
 	* ```Assets/Sample/HoloLensARToolKitMulti.unity```
 5. Configure HoloLens deployment settings and deploy to HoloLens.
-	* See Chapter 4 and 5 of [Holograms 100](https://developer.microsoft.com/en-us/windows/holographic/holograms_100).
+	* See Chapter 4 and 5 of [Holograms 100](https://developer.microsoft.com/en-us/windows/mixed-reality/holograms_100).
 6. Prepare the correspondent printed marker of ARToolKit.
 	* Marker images are [Here](https://github.com/artoolkit/artoolkit5/tree/master/doc/patterns).
 	* Make sure the printed marker size is same as configured in Unity.
