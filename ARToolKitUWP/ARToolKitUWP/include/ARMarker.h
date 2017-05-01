@@ -69,7 +69,6 @@
 */
 
 #pragma once
-#define ARDOUBLE_IS_FLOAT
 #include <AR/ar.h>
 #include <AR/arFilterTransMat.h>
 #include <ARPattern.h>

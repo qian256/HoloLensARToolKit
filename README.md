@@ -60,7 +60,7 @@ This repository contains:
 
 ## Academic Citation
 
-If this work helps your research, please cite the following paper:
+If this work helps your research, please cite the following [paper](https://arxiv.org/abs/1703.05834):
 
 ```tex
 @online{1703.05834,
