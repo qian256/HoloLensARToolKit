@@ -2,7 +2,7 @@ HoloLens with ARToolKit
 ===
 Author: [Long Qian](http://longqian.me/aboutme)
 
-Date: 2017-02-14
+Date: 2017-04-30
 
 ## Overview
 **HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) (v5.3.2) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us), or generally UWP (Universal Windows Platform).
@@ -45,6 +45,7 @@ This repository contains:
 7. See the effect.
 	* **HoloLens clicker** or **air tap** is able to tune the visualization of camera frame.
 
+**All samples are tested with Unity5.5.1f1.**
 
 
 ## Understand HoloLensARToolKit
