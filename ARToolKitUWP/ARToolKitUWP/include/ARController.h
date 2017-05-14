@@ -102,7 +102,7 @@ private:
 	typedef enum {
 		NOTHING_INITIALISED,			///< No initialisation yet and no resources allocated.
 		BASE_INITIALISED,				///< Marker management initialised, markers can be added.
-		WAITING_FOR_FRAME,				///< Marker added done, waiting for frame source to become ready.
+		// WAITING_FOR_FRAME,				///< Marker added done, waiting for frame source to become ready.
 		DETECTION_RUNNING				///< Frame running, additional initialisation occurred, marker detection running.
 	} ARToolKitState;
 

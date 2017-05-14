@@ -1,8 +1,8 @@
-HoloLens with ARToolKit
+HoloLens with ARToolKit v0.2
 ===
 Author: [Long Qian](http://longqian.me/aboutme)
 
-Date: 2017-04-30
+Date: 2017-05-13
 
 ## Overview
 **HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) (v5.3.2) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us), or generally UWP (Universal Windows Platform).
@@ -16,6 +16,8 @@ This repository contains:
 - Link to camera calibration of HoloLens
 
 ## Example
+
+The following example videos are taken with HoloLensARToolKit **[v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1)**.
 
 <table border=0>
 <tr>
@@ -43,17 +45,19 @@ This repository contains:
 	* Marker images are [Here](https://github.com/artoolkit/artoolkit5/tree/master/doc/patterns).
 	* Make sure the printed marker size is same as configured in Unity.
 7. See the effect.
-	* **HoloLens clicker** or **air tap** is able to tune the visualization of camera frame.
+	* **HoloLens clicker** or **air tap** is able to disable and enable video preview.
 
-**All samples are tested with Unity5.5.1f1.**
+## Compatibility Tested
+1. Unity 5.6.0f3
+2. Visual Studio 2017 (Toolset v141)
+3. Windows 10 SDK 10.0.10240.0 to 10.0.14393.0
 
-
-## Understand HoloLensARToolKit
+## Understand HoloLensARToolKit v0.2
 - [Overview: ARToolKit on HoloLens](http://longqian.me/2017/01/20/artoolkit-on-hololens/)
-- [ARUWPController options](http://longqian.me/2017/02/14/hololens-artoolkit-controller/)
-- [ARUWPMarker options](http://longqian.me/2017/02/14/hololens-artoolkit-marker/)
 - [Unity native programming](http://longqian.me/2017/01/29/unity-native-programming/)
-- [Coordinate systems in HoloLensARToolKit](http://longqian.me/2017/02/14/hololens-artoolkit-coordinates/)
+- [ARUWPController options v0.2]()
+- [ARUWPMarker options v0.2]()
+- [Coordinate systems in HoloLensARToolKit v0.2]()
 - [Asynchronous computation in .NET]()
 
 

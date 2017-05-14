@@ -37,14 +37,68 @@ using System;
 /// constant definitions.
 /// The detailed implementations are in the Visual Studio project of ARToolKitUWP
 /// library.
+/// These functions should be considered internal use only. There is generally no
+/// need for users to call these functions directly, since these functionalities
+/// are wrapped up in ARUWPController.cs or ARUWPMarker.cs.
 ///
 /// Author:     Long Qian
 /// Email:      lqian8@jhu.edu
 /// </summary>
 public static class ARUWP {
 
+    #region Log support for messages from ARToolKitUWP.dll
+
+    /// <summary>
+    /// Declare the LogCallback delegate. [internal use]
+    /// </summary>
+    /// <param name="msg">The input string object</param>
+    public delegate void LogCallback([MarshalAs(UnmanagedType.LPStr)] string msg);
+
+    /// <summary>
+    /// Pre-defined LogCallback instance. [internal use]
+    /// </summary>
+    private static LogCallback logCallback = null;
+
+    /// <summary>
+    /// The wrapper for ARUWP.aruwpRegisterLogCallback() function, register the callback function. [internal use]
+    /// </summary>
+    /// <param name="lcb">LogCallback instance</param>
+    public static void aruwpRegisterLogCallbackWrapper(LogCallback lcb) {
+        GCHandle logCallbackGCH = new GCHandle();
+        if (lcb != null) {
+            logCallback = lcb;
+            logCallbackGCH = GCHandle.Alloc(logCallback); // Does not need to be pinned, see http://stackoverflow.com/a/19866119/316487 
+        }
+        ARUWP.aruwpRegisterLogCallback(logCallback);
+        if (lcb == null) {
+            logCallback = null;
+            logCallbackGCH.Free();
+        }
+    }
+
+    /// <summary>
+    /// User-defined behavior that executes with new log messages from the native library. [public use]
+    /// </summary>
+    public static Action<String> logCallbackAct { get; set; }
+
+    /// <summary>
+    /// Pre-defined LogCallback instance: if logCallbackAct is set, use it for customized behavior,
+    /// otherwise use Debug.Log to output it to the VS console. [internal use]
+    /// </summary>
+    /// <param name="msg">Input string object</param>
+    public static void Log(String msg) {
+        // If there is a logCallback then use that to handle the log message. Otherwise simply
+        // print out on the debug console.
+        if (logCallbackAct != null) logCallbackAct(msg);
+        else Debug.Log(msg);
+    }
+    #endregion
+
+
+    #region Marshalled functions from ARToolKitUWP.dll
+
     [DllImport("ARToolKitUWP.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void aruwpRegisterLogCallback(ARUWPUtils.LogCallback callback);
+    public static extern void aruwpRegisterLogCallback(LogCallback callback);
 
     [DllImport("ARToolKitUWP.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void aruwpSetLogLevel(int logLevel);
@@ -55,7 +109,7 @@ public static class ARUWP {
 
     [DllImport("ARToolKitUWP")]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
-    public static extern bool aruwpInitialiseARWpithOptions(int width, int height, int pixelFormat, int pattSize, int pattCountMax);
+    public static extern bool aruwpInitialiseARWithOptions(int width, int height, int pixelFormat, int pattSize, int pattCountMax);
 
     [DllImport("ARToolKitUWP")]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
@@ -176,20 +230,21 @@ public static class ARUWP {
     [DllImport("ARToolKitUWP")]
     public static extern void aruwpSetMarkerOptionFloat(int markerID, int option, float value);
 
+    #endregion
+
+
+    #region Constants declaration that used across the project
+    public const int ARUWP_MARKER_OPTION_FILTERED = 1;                         // bool, true for filtering enabled.
+	public const int ARUWP_MARKER_OPTION_FILTER_SAMPLE_RATE = 2;               // float, sample rate for filter calculations.
+	public const int ARUWP_MARKER_OPTION_FILTER_CUTOFF_FREQ = 3;               // float, cutoff frequency of filter.
+	public const int ARUWP_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION = 4;  // bool, true to use continuous pose estimate.
+	public const int ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE = 5;                // float, confidence value of most recent marker match
+	public const int ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE_CUTOFF = 6;         // float, minimum allowable confidence value used in marker matching.
+	public const int ARUWP_MARKER_OPTION_MULTI_MIN_SUBMARKERS = 8;             // int, minimum number of submarkers for tracking to be valid.
+	public const int ARUWP_MARKER_OPTION_MULTI_MIN_CONF_MATRIX = 9;            // float, minimum confidence value for submarker matrix tracking to be valid.
+	public const int ARUWP_MARKER_OPTION_MULTI_MIN_CONF_PATTERN = 10;          // float, minimum confidence value for submarker pattern tracking to be valid.
+
     
-
-
-    public const int ARUWP_MARKER_OPTION_FILTERED = 1;                         ///< bool, true for filtering enabled.
-	public const int ARUWP_MARKER_OPTION_FILTER_SAMPLE_RATE = 2;               ///< float, sample rate for filter calculations.
-	public const int ARUWP_MARKER_OPTION_FILTER_CUTOFF_FREQ = 3;               ///< float, cutoff frequency of filter.
-	public const int ARUWP_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION = 4;  ///< bool, true to use continuous pose estimate.
-	public const int ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE = 5;                ///< float, confidence value of most recent marker match
-	public const int ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE_CUTOFF = 6;         ///< float, minimum allowable confidence value used in marker matching.
-	public const int ARUWP_MARKER_OPTION_MULTI_MIN_SUBMARKERS = 8;             ///< int, minimum number of submarkers for tracking to be valid.
-	public const int ARUWP_MARKER_OPTION_MULTI_MIN_CONF_MATRIX = 9;            ///< float, minimum confidence value for submarker matrix tracking to be valid.
-	public const int ARUWP_MARKER_OPTION_MULTI_MIN_CONF_PATTERN = 10;          ///< float, minimum confidence value for submarker pattern tracking to be valid.
-
-
 
     public const int AR_LABELING_THRESH_MODE_MANUAL = 0;           // Uses a fixed threshold value
     public const int AR_LABELING_THRESH_MODE_AUTO_MEDIAN = 1;      // Automatically adjusts threshold to whole-image median
@@ -240,4 +295,13 @@ public static class ARUWP {
     public const int AR_PIXEL_FORMAT_420v = 13;
     public const int AR_PIXEL_FORMAT_420f = 14;
     public const int AR_PIXEL_FORMAT_NV2 = 15;
+
+
+    public const int ARUWP_STATUS_CLEAN = 0;                    // No initialisation yet and no resources allocated.
+    public const int ARUWP_STATUS_VIDEO_INITIALIZED = 1;        // Video preview is initialized
+    public const int ARUWP_STATUS_CTRL_INITIALIZED = 2;         // Controller context is initialized, markers can be added
+    public const int ARUWP_STATUS_RUNNING = 3;                  // Running
+
+    #endregion
+
 }

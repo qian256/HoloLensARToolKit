@@ -58,8 +58,7 @@ public class ARUWPMarkerEditor : Editor {
         anchoredToWorld_Prop,
         applyRotation_Prop,
         applyTranslation_Prop,
-        confidenceTextBox_Prop,
-        confidenceColoBox_Prop;
+        magicFunction_Prop;
 
     
     void OnEnable() {
@@ -81,8 +80,7 @@ public class ARUWPMarkerEditor : Editor {
         anchoredToWorld_Prop = serializedObject.FindProperty("anchoredToWorld");
         applyRotation_Prop = serializedObject.FindProperty("applyRotation");
         applyTranslation_Prop = serializedObject.FindProperty("applyTranslation");
-        confidenceTextBox_Prop = serializedObject.FindProperty("confidenceTextBox");
-        confidenceColoBox_Prop = serializedObject.FindProperty("confidenceColoBox");
+        magicFunction_Prop = serializedObject.FindProperty("performMagicFunction");
     }
 
 
@@ -112,7 +110,8 @@ public class ARUWPMarkerEditor : Editor {
                 break;
         }
 
-        EditorGUILayout.PropertyField(showOptions_Prop, new GUIContent("Show Options"));
+        EditorGUILayout.PropertyField(target_Prop, new GUIContent("Visualization Target"));
+        EditorGUILayout.PropertyField(showOptions_Prop, new GUIContent("Advanced Options"));
         bool showOptions = showOptions_Prop.boolValue;
         if (showOptions) {
             EditorGUILayout.PropertyField(oFiltered_Prop, new GUIContent("Filtered"));
@@ -131,17 +130,13 @@ public class ARUWPMarkerEditor : Editor {
                 EditorGUILayout.PropertyField(oMinConfSubMatrix_Prop, new GUIContent("Minumum Sub Matrix Confidence"));
                 EditorGUILayout.PropertyField(oMinConfSubPattern_Prop, new GUIContent("Minumum Sub Pattern Confidence"));
             }
-        }
-        EditorGUILayout.PropertyField(target_Prop, new GUIContent("Visualization Target"));
-        EditorGUILayout.PropertyField(anchoredToWorld_Prop, new GUIContent("Anchored to World"));
-        EditorGUILayout.PropertyField(applyRotation_Prop, new GUIContent("Apply Rotation"));
-        EditorGUILayout.PropertyField(applyTranslation_Prop, new GUIContent("Apply Translation"));
 
-        if (type != ARUWPMarker.MarkerType.multi) {
-            EditorGUILayout.PropertyField(confidenceTextBox_Prop, new GUIContent("Confidence Textbox"));
-            EditorGUILayout.PropertyField(confidenceColoBox_Prop, new GUIContent("Confidence Colorbox"));
+            EditorGUILayout.PropertyField(anchoredToWorld_Prop, new GUIContent("Anchored to World"));
+            EditorGUILayout.PropertyField(applyRotation_Prop, new GUIContent("Apply Rotation to Target"));
+            EditorGUILayout.PropertyField(applyTranslation_Prop, new GUIContent("Apply Translation to Target"));
+            EditorGUILayout.PropertyField(magicFunction_Prop, new GUIContent("Apply Undistortion Function"));
         }
-
+        
         serializedObject.ApplyModifiedProperties();
     }
 

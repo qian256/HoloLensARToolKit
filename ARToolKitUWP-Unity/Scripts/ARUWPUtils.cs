@@ -24,61 +24,124 @@
 *
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
 /// <summary>
-/// ARUWPUtils class provides utility functions for ARUWP package
-///
-/// Author:     Long Qian
-/// Email:      lqian8@jhu.edu
+/// ARUWPUtils class provides utility functions for ARUWP package, including transformation
+/// manipulation, FPS recording, logging.
 /// </summary>
 public static class ARUWPUtils {
 
+    /// <summary>
+    /// Class and object identifier for logging. [internal use]
+    /// </summary>
     private static string TAG = "ARUWPUtils";
 
-    // Delegate type declaration.
-    public delegate void LogCallback([MarshalAs(UnmanagedType.LPStr)] string msg);
+    /// <summary>
+    /// The queue to record the timestamps of rendering, used to calculate render FPS. [internal use]
+    /// </summary>
+    private static Queue<long> qRenderTick = new Queue<long>();
 
-    // Delegate instance.
-    private static LogCallback logCallback = null;
-    private static GCHandle logCallbackGCH;
+    /// <summary>
+    /// The queue to record the timestamps of video frames, used to calculate video FPS. [internal use]
+    /// </summary>
+    private static Queue<long> qVideoTick = new Queue<long>();
+    
+    /// <summary>
+    /// The queue to record the timestamps of tracking performed, used to calculate tracking FPS. [internal use]
+    /// </summary>
+    private static Queue<long> qTrackTick = new Queue<long>();
 
-    public static void aruwpRegisterLogCallback(LogCallback lcb) {
-        if (lcb != null) {
-            logCallback = lcb;
-            logCallbackGCH = GCHandle.Alloc(logCallback); // Does not need to be pinned, see http://stackoverflow.com/a/19866119/316487 
+    /// <summary>
+    /// Record the current timestamp for rendering a frame. [internal use]
+    /// </summary>
+    public static void RenderTick() {
+        while (qRenderTick.Count > 49) {
+            qRenderTick.Dequeue();
         }
-        ARUWP.aruwpRegisterLogCallback(logCallback);
-        if (lcb == null) {
-            logCallback = null;
-            logCallbackGCH.Free();
-        }
+        qRenderTick.Enqueue(DateTime.Now.Ticks);
     }
 
-    public static void aruwpSetLogLevel(int logLevel) {
-        ARUWP.aruwpSetLogLevel(logLevel);
+    /// <summary>
+    /// Get the average rendering period for the previous 50 occurrence. [public use]
+    /// </summary>
+    /// <returns>Average rendering period in millisecond</returns>
+    public static float GetRenderDeltaTime() {
+        if (qRenderTick.Count == 0) {
+            return float.PositiveInfinity;
+        }
+        return (DateTime.Now.Ticks - qRenderTick.Peek()) / 500000.0f; 
     }
-
 
 
     /// <summary>
-    /// Convert row major 3x4 matrix to Matrix4x4
+    /// Record the current timestamp for video frame arrival. [internal use]
     /// </summary>
+    public static void VideoTick() {
+        while (qVideoTick.Count > 49) {
+            qVideoTick.Dequeue();
+        }
+        qVideoTick.Enqueue(DateTime.Now.Ticks);
+    }
+
+    /// <summary>
+    /// Get the average video frame period for the previous 50 occurrence. [public use]
+    /// </summary>
+    /// <returns>Average video frame period in millisecond</returns>
+    public static float GetVideoDeltaTime() {
+        if (qVideoTick.Count == 0) {
+            return float.PositiveInfinity;
+        }
+        return (DateTime.Now.Ticks - qVideoTick.Peek()) / 500000.0f;
+    }
+
+    /// <summary>
+    /// Record the current timestamp for tracking performed. [internal use]
+    /// </summary>
+    public static void TrackTick() {
+        while (qTrackTick.Count > 49) {
+            qTrackTick.Dequeue();
+        }
+        qTrackTick.Enqueue(DateTime.Now.Ticks);
+    }
+
+    /// <summary>
+    /// Get the average tracking period for the previous 50 occurrence. [public use]
+    /// </summary>
+    /// <returns>Average tracking period in millisecond</returns>
+    public static float GetTrackDeltaTime() {
+        if (qTrackTick.Count == 0) {
+            return float.PositiveInfinity;
+        }
+        return (DateTime.Now.Ticks - qTrackTick.Peek()) / 500000.0f;
+    }
+
+
+    /// <summary>
+    /// Convert row major 3x4 matrix returned by ARToolKitUWP to Matrix4x4 used in Unity.
+    /// Right-hand coordinates to left-hand coordinates conversion is performed.
+    /// That is, the Y-axis is flipped. Unit is changed from millimeter to meter. [internal use]
+    /// </summary>
+    /// <param name="t">Flat float array with length 12, obtained from ARToolKitUWP</param>
+    /// <returns>The Matrix4x4 object representing the transformation in Unity</returns>
     public static Matrix4x4 ConvertARUWPFloatArrayToMatrix4x4(float[] t) {
         Matrix4x4 m = new Matrix4x4();
-        m.SetRow(0, new Vector4(t[0], t[1], t[2], t[3]/1000.0f));
-        m.SetRow(1, new Vector4(t[4], t[5], t[6], t[7]/1000.0f));
-        m.SetRow(2, new Vector4(t[8], t[9], t[10], t[11]/1000.0f));
+        m.SetRow(0, new Vector4(t[0], -t[1], t[2], t[3]/1000.0f));
+        m.SetRow(1, new Vector4(-t[4], t[5], -t[6], -t[7]/1000.0f));
+        m.SetRow(2, new Vector4(t[8], -t[9], t[10], t[11]/1000.0f));
         m.SetRow(3, new Vector4(0, 0, 0, 1));
         return m;
     }
-    
+
     /// <summary>
-    /// Extract Quaternion representation from Matrix4x4 obejct
+    /// Extract Quaternion representation from Matrix4x4 object (Deprecated) [public use]
     /// </summary>
+    /// <param name="m">Matrix4x4 object</param>
+    /// <returns>Quaternion extracted from the 3x3 submatrix</returns>
     public static Quaternion QuaternionFromMatrix_Deprecated(Matrix4x4 m) {
         // Adapted from: http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
         Quaternion q = new Quaternion();
@@ -94,8 +157,11 @@ public static class ARUWPUtils {
 
 
     /// <summary>
-    /// Extract Quaternion representation from Matrix4x4 obejct
+    /// Extract Quaternion representation from Matrix4x4 object, that is more robust against
+    /// singularity. [public use]
     /// </summary>
+    /// <param name="m">Matrix4x4 object</param>
+    /// <returns>Quaternion extracted from the 3x3 submatrix</returns>
     public static Quaternion QuaternionFromMatrix(Matrix4x4 m) {
         // Trap the case where the matrix passed in has an invalid rotation submatrix.
         if (m.GetColumn(2) == Vector4.zero) {
@@ -105,27 +171,22 @@ public static class ARUWPUtils {
         return Quaternion.LookRotation(m.GetColumn(2), m.GetColumn(1));
     }
 
-    /// <summary>
-    /// Extract Vector3 representation of translation from Matrix4x4 obejct
-    /// unit: meter
-    /// </summary>
-    //public static Vector3 PositionFromMatrixMeter(Matrix4x4 m) {
-    //    return m.GetColumn(3) / 1000f;
-    //}
-
 
     /// <summary>
-    /// Extract Vector3 representation of translation from Matrix4x4 obejct
-    /// unit: millimeter
+    /// Extract Vector3 representation of translation from Matrix4x4 object. [public use]
     /// </summary>
+    /// <param name="m">Matrix4x4 object</param>
+    /// <returns>Translation represented in Vector3</returns>
     public static Vector3 PositionFromMatrix(Matrix4x4 m) {
         return m.GetColumn(3);
     }
 
 
     /// <summary>
-    /// Extract Vector3 representation of scale from Matrix4x4 obejct
+    /// Extract Vector3 representation of scale from Matrix4x4 object. [public use]
     /// </summary>
+    /// <param name="m">Matrix4x4 object</param>
+    /// <returns>Scale represented in Vector3</returns>
     public static Vector3 ScaleFromMatrix(Matrix4x4 m) {
         var x = Mathf.Sqrt(m.m00 * m.m00 + m.m01 * m.m01 + m.m02 * m.m02);
         var y = Mathf.Sqrt(m.m10 * m.m10 + m.m11 * m.m11 + m.m12 * m.m12);
@@ -137,8 +198,9 @@ public static class ARUWPUtils {
 
 
     /// <summary>
-    /// Logging 4x4 row major matrix
+    /// Logging 4x4 row major matrix, using Debug.Log support. [public use]
     /// </summary>
+    /// <param name="mat">Flat float array representing row-major matrix</param>
     public static void LogMatrixRowMajor(float[] mat) {
         var str1 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[0], mat[1], mat[2], mat[3]);
         var str2 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[4], mat[5], mat[6], mat[7]);
@@ -147,10 +209,11 @@ public static class ARUWPUtils {
         Debug.Log(str1 + str2 + str3 + str4);
     }
 
+
     /// <summary>
-    /// Logging 4x4 column major matrix.
-    /// ARToolKit returns column major matrix for ARPatterns
+    /// Logging 4x4 column major matrix, using Debug.Log support. ARToolKit returns column-major matrix for ARPatterns. [public use]
     /// </summary>
+    /// <param name="mat">Flat float array representing column-major matrix</param>
     public static void LogMatrixColumnMajor(float[] mat) {
         var str1 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[0], mat[4], mat[8], mat[12]);
         var str2 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[1], mat[5], mat[9], mat[13]);
@@ -159,9 +222,11 @@ public static class ARUWPUtils {
         Debug.Log(str1 + str2 + str3 + str4);
     }
 
+
     /// <summary>
-    /// Logging 4x4 Matrix4x4
+    /// Logging Matrix4x4 using Debug.Log support. [public use]
     /// </summary>
+    /// <param name="mat">Matrix4x4 object</param>
     public static void LogMatrix4x4(Matrix4x4 mat) {
         var str1 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[0], mat[4], mat[8], mat[12]);
         var str2 = string.Format("{0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}\n", mat[1], mat[5], mat[9], mat[13]);
@@ -171,38 +236,22 @@ public static class ARUWPUtils {
     }
 
 
-    /// <summary>
-    /// Convert ARUWP matrix to unity matrix, the trick here is to change unit from millimeter to meter
-    /// </summary>
-    //public static Matrix4x4 ConvertARUWPMatrixToMatrix4x4(Matrix4x4 m) {
-    //    Matrix4x4 n = m * Matrix4x4.identity;
-    //    n.m03 /= 1000f;
-    //    n.m13 /= 1000f;
-    //    n.m23 /= 1000f;
-    //    return n;
-    //}
-
 
     /// <summary>
-    /// Convert Unity Transform object to a Matrix4x4 object
+    /// Convert Unity Transform object to a Matrix4x4 object. [public use]
     /// </summary>
+    /// <param name="t">Transform of Unity GameObject</param>
+    /// <returns>Matrix4x4 representation of the transform</returns>
     public static Matrix4x4 ConvertTransformToMatrix4x4(Transform t) {
         return Matrix4x4.TRS(t.localPosition, t.localRotation, t.localScale);
     }
 
 
     /// <summary>
-    /// Apply a transformation represented by Matrix4x4 to a Transform object
+    /// Set a transformation represented by Matrix4x4 to a GameObject localtransform. [public use]
     /// </summary>
-    public static void SetMatrix4x4ToTransform(ref Transform t, Matrix4x4 m) {
-        t.localPosition = PositionFromMatrix(m);
-        t.localRotation = QuaternionFromMatrix(m);
-        t.localScale = ScaleFromMatrix(m);
-    }
-
-    /// <summary>
-    /// Apply a transformation represented by Matrix4x4 to a GameObject
-    /// </summary>
+    /// <param name="o">The GameObject to set</param>
+    /// <param name="m">The Matrix4x4 object representing the target transformation</param>
     public static void SetMatrix4x4ToGameObject(ref GameObject o, Matrix4x4 m) {
         o.transform.localPosition = PositionFromMatrix(m);
         o.transform.localRotation = QuaternionFromMatrix(m);
@@ -210,41 +259,5 @@ public static class ARUWPUtils {
     }
 
 
-    /// <summary>
-    /// Adapted from arunity package:
-    /// Convert from right-hand coordinate system with <normal vector> in direction of +x,
-    /// <orthorgonal vector> in direction of +y, and <approach vector> in direction of +z,
-    /// to Unity's left-hand coordinate system with <normal vector> in direction of +x,
-    /// <orthorgonal vector> in direction of +y, and <approach vector> in direction of +z.
-    /// This is equivalent to negating row 2, and then negating column 2.
-    /// </summary>
-    //public static Matrix4x4 LHMatrixFromRHMatrix(Matrix4x4 rhm) {
-    //    Matrix4x4 lhm = new Matrix4x4(); 
 
-    //    // Column 0.
-    //    lhm[0, 0] = rhm[0, 0];
-    //    lhm[1, 0] = rhm[1, 0];
-    //    lhm[2, 0] = -rhm[2, 0];
-    //    lhm[3, 0] = rhm[3, 0];
-
-    //    // Column 1.
-    //    lhm[0, 1] = rhm[0, 1];
-    //    lhm[1, 1] = rhm[1, 1];
-    //    lhm[2, 1] = -rhm[2, 1];
-    //    lhm[3, 1] = rhm[3, 1];
-
-    //    // Column 2.
-    //    lhm[0, 2] = -rhm[0, 2];
-    //    lhm[1, 2] = -rhm[1, 2];
-    //    lhm[2, 2] = rhm[2, 2];
-    //    lhm[3, 2] = -rhm[3, 2];
-
-    //    // Column 3.
-    //    lhm[0, 3] = rhm[0, 3];
-    //    lhm[1, 3] = rhm[1, 3];
-    //    lhm[2, 3] = -rhm[2, 3];
-    //    lhm[3, 3] = rhm[3, 3];
-
-    //    return lhm;
-    //}
 }

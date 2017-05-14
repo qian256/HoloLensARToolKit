@@ -170,37 +170,6 @@ void ARController::setPixelFormat(int format) {
 }
 
 
-bool ARController::startRunning(const char* cparaName, const char* cparaBuff, const long cparaBuffLen)
-{
-	logv(AR_LOG_LEVEL_INFO, "ARController::startRunning(): called, start running");
-
-	// Check for initialization before starting video
-	if (state != BASE_INITIALISED) {
-		logv(AR_LOG_LEVEL_ERROR, "ARController::startRunning(): Error: not initialized, exiting, returning false");
-		return false;
-	}
-
-	frameSource = FrameSource::newFrameSource(frameWidth, frameHeight, pixelFormat);
-	if (!frameSource) {
-		logv(AR_LOG_LEVEL_ERROR, "ARController::startRunning(): Error: no frame source, exiting, returning false");
-		return false;
-	}
-
-	frameSource->configure(cparaName, cparaBuff, cparaBuffLen);
-
-	if (!frameSource->open()) {
-		delete frameSource;
-		frameSource = NULL;
-		return false;
-	}
-
-	state = WAITING_FOR_FRAME;
-
-	logv(AR_LOG_LEVEL_DEBUG, "ARController::startRunning(): exiting, returning true");
-	return true;
-}
-
-
 bool ARController::initARMore(void)
 {
 	logv(AR_LOG_LEVEL_INFO, "ARController::initARMore() called");
@@ -246,10 +215,45 @@ bail:
 }
 
 
+bool ARController::startRunning(const char* cparaName, const char* cparaBuff, const long cparaBuffLen)
+{
+	logv(AR_LOG_LEVEL_INFO, "ARController::startRunning(): called, start running");
+
+	// Check for initialization before starting video
+	if (state != BASE_INITIALISED) {
+		logv(AR_LOG_LEVEL_ERROR, "ARController::startRunning(): Error: not initialized, exiting, returning false");
+		return false;
+	}
+
+	frameSource = FrameSource::newFrameSource(frameWidth, frameHeight, pixelFormat);
+	if (!frameSource) {
+		logv(AR_LOG_LEVEL_ERROR, "ARController::startRunning(): Error: no frame source, exiting, returning false");
+		return false;
+	}
+
+	frameSource->configure(cparaName, cparaBuff, cparaBuffLen);
+
+	if (!frameSource->open()) {
+		delete frameSource;
+		frameSource = NULL;
+		return false;
+	}
+
+	// v0.2
+	initARMore();
+
+	// v0.2
+	state = DETECTION_RUNNING;
+
+	logv(AR_LOG_LEVEL_DEBUG, "ARController::startRunning(): exiting, returning true");
+	return true;
+}
+
+
 bool ARController::stopRunning()
 {
 	logv(AR_LOG_LEVEL_DEBUG, "ARController::stopRunning(): called");
-	if (state != DETECTION_RUNNING && state != WAITING_FOR_FRAME) {
+	if (state != DETECTION_RUNNING ) {
 		logv(AR_LOG_LEVEL_ERROR, "ARController::stopRunning(): Error: Not running.");
 		return false;
 	}
@@ -287,21 +291,10 @@ bool ARController::update(ARUint8* frame)
 	// check ARController state
 	//
 	if (state != DETECTION_RUNNING) {
-		if (state != WAITING_FOR_FRAME) {
-			// State is NOTHING_INITIALISED or BASE_INITIALISED.
-			logv(AR_LOG_LEVEL_ERROR, "ARController::update(): Error-if (state != WAITING_FOR_VIDEO) true, exiting returning false");
-			return false;
-
-		}
-		else {
-
-			// First check there is a video source and it's open.
-			if (!frameSource) {
-				logv(AR_LOG_LEVEL_ERROR, "ARController::update(): Error-no video source or video source is closed, exiting returning false");
-				return false;
-			}
-			state = DETECTION_RUNNING;
-		}
+		// v0.2
+		// State is NOTHING_INITIALISED or BASE_INITIALISED.
+		logv(AR_LOG_LEVEL_ERROR, "ARController::update(): Error-if (state != WAITING_FOR_VIDEO) true, exiting returning false");
+		return false;
 	}
 	
 	//
@@ -329,10 +322,11 @@ bool ARController::update(ARUint8* frame)
 		int markerNum = 0;
 
 		if (!m_arHandle) {
-			if (!initARMore()) {
-				logv(AR_LOG_LEVEL_ERROR, "ARController::update(): Error initialising AR, exiting returning false");
-				return false;
-			}
+			// v0.2
+			//if (!initARMore()) {
+			logv(AR_LOG_LEVEL_ERROR, "ARController::update(): Error initialising AR, exiting returning false");
+			return false;
+			//}
 		}
 
 		if (m_arHandle) {
@@ -372,7 +366,8 @@ bool ARController::shutdown()
 	do {
 		switch (state) {
 		case DETECTION_RUNNING:
-		case WAITING_FOR_FRAME:
+		// v0.2
+		//case WAITING_FOR_FRAME:
 			logv(AR_LOG_LEVEL_DEBUG, "ARController::shutdown(): DETECTION_RUNNING or WAITING_FOR_FRAME, forcing stop.");
 			stopRunning();
 			break;

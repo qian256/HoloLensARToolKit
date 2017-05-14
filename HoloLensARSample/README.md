@@ -4,7 +4,7 @@ A Unity3D application using ARToolKitUWP-Unity.
 
 Author: [Long Qian](http://longqian.me/aboutme)
 
-Date: 2017-02-14
+Date: 2017-05-13
 
 ## Overview
 
@@ -14,7 +14,11 @@ This folder contains samples that utilize ARToolKitUWP and ARToolKitUWP-Unity to
 * ```Assets/Sample/HoloLensARToolKitCube.unity```
 * ```Assets/Sample/HoloLensARToolKitMulti.unity```
 
+**Please import the ARToolKitUWP.unitypackage before building the sample scenes.**
+
 ## Screenshots
+
+The following screenshots are taken with HoloLensARToolKit **[v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1)*.
 
 <table border=0>
 <tr>
