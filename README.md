@@ -15,9 +15,11 @@ This repository contains:
 
 ## What's new in v0.2?
 
-HoloLensARToolKit v0.2 involves a re-write of video pipeline, taking advantage of Windows MediaCapture APIs. Compared to [v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1) where the frame data is achieved via Unity WebcamTexture. The current implementation uses .NET async features widely, to parallelize video capture, tracking, and Unity rendering. The performance of video capture, tracking and Unity rendering are detached. It is able to achieve **60fps rendering, 30fps video capture, and 25-30fps tracking**.
+HoloLensARToolKit v0.2 involves a re-write of video pipeline, taking advantage of [Windows.Media.Capture APIs](https://docs.microsoft.com/en-us/uwp/api/windows.media.capture). Compared to [v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1) where the frame data is achieved via Unity WebcamTexture, Windows.Media.Capture provides direct access to video control, and is able to be parallelized.
 
-In addition, matrix code mismatch is fixed, and coordinate system representation is more consistent in v0.2. 
+The current implementation uses .NET [Task-based Asynchronous Pattern](https://msdn.microsoft.com/en-us/library/hh873177(v=vs.141).aspx) widely, to parallelize video capture, tracking, and Unity rendering. The dependency between video capture, tracking and Unity rendering is loosened. HoloLensARToolKit v0.2 is able to achieve: **rendering at 45-60 fps, video capture at 30 fps, and tracking at 25-30 fps** performance.
+
+In addition, matrix code mismatch issue is fixed, and coordinate system representation is more consistent. 
 
 
 ## Example
