@@ -5,15 +5,20 @@ Author: [Long Qian](http://longqian.me/aboutme)
 Date: 2017-05-13
 
 ## Overview
-**HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) (v5.3.2) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us), or generally UWP (Universal Windows Platform).
-
-With fiducial marker tracking provided by ARToolKit, plus the indoor localization of HoloLens, many Augmented Reality applications would be made possible.
+**HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) (v5.3.2) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us), or generally UWP (Universal Windows Platform). With fiducial marker tracking provided by ARToolKit, plus the indoor localization of HoloLens, many Augmented Reality applications would be made possible.
 
 This repository contains:
 - Wrapper of [ARToolKit5](https://github.com/artoolkit/artoolkit5) for UWP
 - Unity package to interface the native library
 - Some sample Unity scenes to demo the use of them
 - Link to camera calibration of HoloLens
+
+## What's new in v0.2?
+
+HoloLensARToolKit v0.2 involves a re-write of video pipeline, taking advantage of Windows MediaCapture APIs. Compared to [v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1) where the frame data is achieved via Unity WebcamTexture. The current implementation uses .NET async features widely, to parallelize video capture, tracking, and Unity rendering. The performance of video capture, tracking and Unity rendering are detached. It is able to achieve **60fps rendering, 30fps video capture, and 25-30fps tracking**.
+
+In addition, matrix code mismatch is fixed, and coordinate system representation is more consistent in v0.2. 
+
 
 ## Example
 

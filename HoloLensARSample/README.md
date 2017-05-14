@@ -18,7 +18,7 @@ This folder contains samples that utilize ARToolKitUWP and ARToolKitUWP-Unity to
 
 ## Screenshots
 
-The following screenshots are taken with HoloLensARToolKit **[v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1)*.
+The following screenshots are taken with HoloLensARToolKit **[v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1)**.
 
 <table border=0>
 <tr>
