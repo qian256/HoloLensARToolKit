@@ -2,22 +2,22 @@ HoloLens with ARToolKit v0.2
 ===
 Author: [Long Qian](http://longqian.me/aboutme)
 
-Date: 2017-05-13
+Date: 2017-05-15
 
 ## Overview
 **HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) (v5.3.2) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us), or generally UWP (Universal Windows Platform). With fiducial marker tracking provided by ARToolKit, plus the indoor localization of HoloLens, many Augmented Reality applications would be made possible.
 
 This repository contains:
-- Wrapper of [ARToolKit5](https://github.com/artoolkit/artoolkit5) for UWP
-- Unity package to interface the native library
-- Some sample Unity scenes to demo the use of them
-- Link to camera calibration of HoloLens
+- `ARToolKitUWP/`: Wrapper of [ARToolKit5](https://github.com/artoolkit/artoolkit5) for UWP
+- `ARToolKitUWP-Unity/` or `ARToolKitUWP.unitypackage`: Unity package to interface the native library
+- `HoloLensARSample/`: Some sample Unity scenes to demo the use of them
+- `HoloLensCamCalib/`: Link to camera calibration of HoloLens
 
 ## What's new in v0.2?
 
-HoloLensARToolKit v0.2 involves a re-write of video pipeline, taking advantage of [Windows.Media.Capture APIs](https://docs.microsoft.com/en-us/uwp/api/windows.media.capture). Compared to [v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1) where the frame data is achieved via Unity WebcamTexture, Windows.Media.Capture provides direct access to video control, and is able to be parallelized.
+HoloLensARToolKit v0.2 involves a re-write of video pipeline, taking advantage of [Windows.Media.Capture APIs](https://docs.microsoft.com/en-us/uwp/api/windows.media.capture). Compared to [v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1) where the frame data is achieved via Unity WebcamTexture, Windows UWP APIs provide direct access to video control.
 
-The current implementation uses .NET [Task-based Asynchronous Pattern](https://msdn.microsoft.com/en-us/library/hh873177(v=vs.141).aspx) widely, to parallelize video capture, tracking, and Unity rendering. The dependency between video capture, tracking and Unity rendering is loosened. HoloLensARToolKit v0.2 is able to achieve: **rendering at 45-60 fps, video capture at 30 fps, and tracking at 25-30 fps** performance.
+The current implementation uses .NET [Task-based Asynchronous Pattern](https://msdn.microsoft.com/en-us/library/hh873177(v=vs.141).aspx) widely, to parallelize video capture, tracking, and Unity rendering. The dependency between each module is loosened. HoloLensARToolKit v0.2 is able to achieve: **rendering at 45-60 fps, video capture at 30 fps, and tracking at 25-30 fps** performance.
 
 In addition, matrix code mismatch issue is fixed, and coordinate system representation is more consistent. 
 
@@ -38,34 +38,41 @@ The following example videos are taken with HoloLensARToolKit **[v0.1](https://g
 </table>
 
 ## Run the sample
+
 1. Make sure you have [HoloLens development tools](https://developer.microsoft.com/en-us/windows/mixed-reality/install_the_tools) installed.
 	* HoloLens Emulator and Vuforia are not required.
+	* Visual Studio 2017 is preferred.
 2. Launch [Unity3D](https://unity3d.com/), open project folder ```HoloLensARSample```.
+	* Unity 5.6.x is preferred.
 3. Import the unity package ```ARToolKitUWP.unitypackage```.
 4. Open one of the sample scenes
 	* ```Assets/Sample/HoloLensARToolKitSingle.unity```
 	* ```Assets/Sample/HoloLensARToolKitCube.unity```
 	* ```Assets/Sample/HoloLensARToolKitMulti.unity```
+	* ```Assets/Sample/HoloLensARToolKitCoords.unity```
 5. Configure HoloLens deployment settings and deploy to HoloLens.
 	* See Chapter 4 and 5 of [Holograms 100](https://developer.microsoft.com/en-us/windows/mixed-reality/holograms_100).
+	* Make sure "Allow Unsafe Code" is checked in the project `Assembly-CSharp`.
 6. Prepare the correspondent printed marker of ARToolKit.
 	* Marker images are [Here](https://github.com/artoolkit/artoolkit5/tree/master/doc/patterns).
 	* Make sure the printed marker size is same as configured in Unity.
-7. See the effect.
+7. Move the marker around and see the effect.
 	* **HoloLens clicker** or **air tap** is able to disable and enable video preview.
 
 ## Compatibility Tested
+
 1. Unity 5.6.0f3
 2. Visual Studio 2017 (Toolset v141)
-3. Windows 10 SDK 10.0.10240.0 to 10.0.14393.0
+3. ARToolKit 5.3.2
+4. Windows 10 SDK 10.0.10240.0 to 10.0.14393.0
 
 ## Understand HoloLensARToolKit v0.2
 - [Overview: ARToolKit on HoloLens](http://longqian.me/2017/01/20/artoolkit-on-hololens/)
 - [Unity native programming](http://longqian.me/2017/01/29/unity-native-programming/)
-- [ARUWPController options v0.2]()
-- [ARUWPMarker options v0.2]()
-- [Coordinate systems in HoloLensARToolKit v0.2]()
-- [Asynchronous computation in .NET]()
+- [ARUWPController options v0.2](http://longqian.me/2017/05/15/hololens-artoolkit-controller-v02/)
+- [ARUWPMarker options v0.2](http://longqian.me/2017/05/15/hololens-artoolkit-marker-v02/)
+- [ARUWPVideo options v0.2](http://longqian.me/2017/05/15/hololens-artoolkit-video-v02/)
+- [Coordinate systems in HoloLensARToolKit v0.2](http://longqian.me/2017/05/15/hololens-artoolkit-coordinates-v02/)
 
 
 ---

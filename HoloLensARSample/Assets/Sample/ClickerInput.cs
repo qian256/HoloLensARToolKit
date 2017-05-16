@@ -40,17 +40,36 @@ using UnityEngine.Events;
 /// </summary>
 public class ClickerInput : MonoBehaviour {
     
+    /// <summary>
+    /// Class and object identifier for logging. [internal use]
+    /// </summary>
     private string TAG = "ClickerInput";
 
+    /// <summary>
+    /// Customized Event class
+    /// </summary>
     [System.Serializable]
     public class EventClickerClick : UnityEvent { };
 
+    /// <summary>
+    /// Clicker event: clicker press, or air tap. [public use]
+    /// </summary>
     public EventClickerClick eventClickerClick;
 
+    /// <summary>
+    /// Singleton object instance. [internal use]
+    /// </summary>
     public static ClickerInput Instance { get; private set; }
+
+    /// <summary>
+    /// UnityEngine.VR.WSA.Input class to manage click detection. [internal use]
+    /// </summary>
     GestureRecognizer recognizer;
 
-    // Use this for initialization
+    /// <summary>
+    /// Unity Monobehavior function. Initialize the click detection, and callback registration. 
+    /// [internal use]
+    /// </summary>
     void Awake() {
         Instance = this;
 
@@ -61,14 +80,5 @@ public class ClickerInput : MonoBehaviour {
         };
         recognizer.StartCapturingGestures();
     }
-
-    // Use this for initialization
-    void Start() {
-        ;
-    }
-
-    // Update is called once per frame
-    void Update() {
-        ;
-    }
+    
 }

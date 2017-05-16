@@ -389,6 +389,7 @@ GameObject:
   - component: {fileID: 1888954598}
   - component: {fileID: 1888954596}
   - component: {fileID: 1888954610}
+  - component: {fileID: 1888954599}
   m_Layer: 0
   m_Name: ARUWP Controller
   m_TagString: Untagged
@@ -451,6 +452,33 @@ MonoBehaviour:
   showOptions: 0
   trackFPS: {fileID: 1366748861}
   renderFPS: {fileID: 1366748862}
+--- !u!114 &1888954599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1888954595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a67702cbcc7e7904493377b6b7d65981, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eventClickerClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1888954596}
+        m_MethodName: TogglePreview
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: ClickerInput+EventClickerClick, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!114 &1888954610
 MonoBehaviour:
   m_ObjectHideFlags: 0

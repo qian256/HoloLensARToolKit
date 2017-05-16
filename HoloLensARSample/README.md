@@ -13,6 +13,7 @@ This folder contains samples that utilize ARToolKitUWP and ARToolKitUWP-Unity to
 * ```Assets/Sample/HoloLensARToolKitSingle.unity```
 * ```Assets/Sample/HoloLensARToolKitCube.unity```
 * ```Assets/Sample/HoloLensARToolKitMulti.unity```
+* ```Assets/Sample/HoloLensARToolKitCoords.unity```
 
 **Please import the ARToolKitUWP.unitypackage before building the sample scenes.**
 
