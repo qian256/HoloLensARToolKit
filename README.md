@@ -53,11 +53,13 @@ The following example videos are taken with HoloLensARToolKit **[v0.1](https://g
 5. Configure HoloLens deployment settings and deploy to HoloLens.
 	* See Chapter 4 and 5 of [Holograms 100](https://developer.microsoft.com/en-us/windows/mixed-reality/holograms_100).
 	* Make sure "Allow Unsafe Code" is checked in the project `Assembly-CSharp`.
+	* Deploy using `Release|x86|Start Debugging` to see Debug logs.
+	* Deploy using `Release|x86|Start Without Debugging` to maximize the performance.
 6. Prepare the correspondent printed marker of ARToolKit.
 	* Marker images are [Here](https://github.com/artoolkit/artoolkit5/tree/master/doc/patterns).
 	* Make sure the printed marker size is same as configured in Unity.
 7. Move the marker around and see the effect.
-	* **HoloLens clicker** or **air tap** is able to disable and enable video preview.
+	* **HoloLens clicker** or **air tap** is able to disable and enable video preview. Disabled preview accelerates the rendering.
 
 ## Compatibility Tested
 
