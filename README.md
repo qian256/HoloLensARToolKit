@@ -2,7 +2,7 @@ HoloLens with ARToolKit v0.2
 ===
 Author: [Long Qian](http://longqian.me/aboutme)
 
-Date: 2017-05-15
+Date: 2017-07-16
 
 ## Overview
 **HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) (v5.3.2) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us), or generally UWP (Universal Windows Platform). With fiducial marker tracking provided by ARToolKit, plus the indoor localization of HoloLens, many Augmented Reality applications would be made possible.
@@ -81,17 +81,7 @@ The following example videos are taken with HoloLensARToolKit **[v0.1](https://g
 
 ## Academic Citation
 
-If this work helps your research, please cite the following [paper](https://arxiv.org/abs/1703.05834):
-
-```tex
-@online{1703.05834,
-  Author = {Long Qian and Ehsan Azimi and Peter Kazanzides and Nassir Navab},
-  Title = {Comprehensive Tracker Based Display Calibration for Holographic Optical See-Through Head-Mounted Display},
-  Year = {2017},
-  Eprint = {1703.05834},
-  Eprinttype = {arXiv},
-}
-```
+Coming soon.
 
 
 ---
