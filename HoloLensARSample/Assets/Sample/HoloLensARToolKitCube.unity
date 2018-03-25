@@ -411,6 +411,7 @@ MonoBehaviour:
   videoPreview: 1
   previewPlane: {fileID: 1437024735}
   videoFPS: {fileID: 1366748863}
+  videoParameter: 4
 --- !u!4 &1888954597
 Transform:
   m_ObjectHideFlags: 0
@@ -441,7 +442,7 @@ MonoBehaviour:
   frameWidth: 0
   frameHeight: 0
   useCameraParamFile: 1
-  cameraParam: hololens896x504.dat
+  cameraParam: hololens1344x756.dat
   threshold: 100
   borderSize: 0.25
   thresholdMode: 0

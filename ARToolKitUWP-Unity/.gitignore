@@ -1,3 +1,5 @@
 *.meta
 Sample/*
 WSATestCertificate.pfx
+*.meta
+

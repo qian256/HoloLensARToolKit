@@ -40,11 +40,13 @@ using UnityEngine;
 [CustomEditor(typeof(ARUWPVideo))]
 [CanEditMultipleObjects]
 public class ARUWPVideoEditor : Editor {
-    public SerializedProperty videoPreview_Prop,
+    public SerializedProperty videoParameter_Prop,
+        videoPreview_Prop,
         previewPlane_Prop,
         videoFPS_Prop;
 
     void OnEnable() {
+        videoParameter_Prop = serializedObject.FindProperty("videoParameter");
         videoPreview_Prop = serializedObject.FindProperty("videoPreview");
         previewPlane_Prop = serializedObject.FindProperty("previewPlane");
         videoFPS_Prop = serializedObject.FindProperty("videoFPS");
@@ -52,7 +54,8 @@ public class ARUWPVideoEditor : Editor {
 
     public override void OnInspectorGUI() {
         serializedObject.Update();
-
+        
+        EditorGUILayout.PropertyField(videoParameter_Prop, new GUIContent("Video Parameter"));
         EditorGUILayout.PropertyField(videoPreview_Prop, new GUIContent("Enable Video Preview"));
         bool videoPreview = videoPreview_Prop.boolValue;
         if (videoPreview) {

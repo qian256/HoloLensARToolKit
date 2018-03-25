@@ -95,6 +95,21 @@ public class ARUWPVideo : MonoBehaviour {
     public Text videoFPS = null;
 
 
+    public enum VideoParameter {
+        Param896x504x30,
+        Param896x504x15,
+        Param1280x720x30,
+        Param1280x720x15,
+        Param1344x756x30,
+        Param1344x756x15
+    }
+
+    /// <summary>
+    /// Video resolution and targeted frame rate (may not be achieved). [public use]
+    /// </summary>
+    public VideoParameter videoParameter = VideoParameter.Param896x504x30;
+
+
 #if !UNITY_EDITOR && UNITY_METRO
     
     [ComImport]
@@ -210,16 +225,74 @@ public class ARUWPVideo : MonoBehaviour {
         Debug.Log(TAG + ": MediaCapture is successfully initialized in shared mode.");
 
         try {
+            int targetVideoWidth, targetVideoHeight;
+            float targetVideoFrameRate;
+            switch (videoParameter) {
+                case VideoParameter.Param1280x720x15:
+                    targetVideoWidth = 1280;
+                    targetVideoHeight = 720;
+                    targetVideoFrameRate = 15.0f;
+                    break;
+                case VideoParameter.Param1280x720x30:
+                    targetVideoWidth = 1280;
+                    targetVideoHeight = 720;
+                    targetVideoFrameRate = 30.0f;
+                    break;
+                case VideoParameter.Param1344x756x15:
+                    targetVideoWidth = 1344;
+                    targetVideoHeight = 756;
+                    targetVideoFrameRate = 15.0f;
+                    break;
+                case VideoParameter.Param1344x756x30:
+                    targetVideoWidth = 1344;
+                    targetVideoHeight = 756;
+                    targetVideoFrameRate = 30.0f;
+                    break;
+                case VideoParameter.Param896x504x15:
+                    targetVideoWidth = 896;
+                    targetVideoHeight = 504;
+                    targetVideoFrameRate = 15.0f;
+                    break;
+                case VideoParameter.Param896x504x30:
+                    targetVideoWidth = 896;
+                    targetVideoHeight = 504;
+                    targetVideoFrameRate = 30.0f;
+                    break;
+                default:
+                    targetVideoWidth = 896;
+                    targetVideoHeight = 504;
+                    targetVideoFrameRate = 30.0f;
+                    break;
+            }
             var mediaFrameSourceVideoPreview = mediaCapture.FrameSources.Values.Single(x => x.Info.MediaStreamType == MediaStreamType.VideoPreview);
-            var minResFormat = mediaFrameSourceVideoPreview.SupportedFormats.OrderBy(x => x.VideoFormat.Width * x.VideoFormat.Height).FirstOrDefault();
-            await mediaFrameSourceVideoPreview.SetFormatAsync(minResFormat);
-            Debug.Log(TAG + ": minResFormat.Subtype is " + minResFormat.Subtype);
-            frameReader = await mediaCapture.CreateFrameReaderAsync(mediaFrameSourceVideoPreview, minResFormat.Subtype);
+            MediaFrameFormat targetResFormat = null;
+            float framerateDiffMin = 60f;
+            foreach (var f in mediaFrameSourceVideoPreview.SupportedFormats.OrderBy(x => x.VideoFormat.Width * x.VideoFormat.Height)) {
+                if (f.VideoFormat.Width == targetVideoWidth && f.VideoFormat.Height == targetVideoHeight ) {
+                    if (targetResFormat == null) {
+                        targetResFormat = f;
+                        framerateDiffMin = Mathf.Abs(f.FrameRate.Numerator / f.FrameRate.Denominator - targetVideoFrameRate);
+                    }
+                    else if (Mathf.Abs(f.FrameRate.Numerator / f.FrameRate.Denominator - targetVideoFrameRate) < framerateDiffMin) {
+                        targetResFormat = f;
+                        framerateDiffMin = Mathf.Abs(f.FrameRate.Numerator / f.FrameRate.Denominator - targetVideoFrameRate);
+                    }
+                }
+            }
+            if (targetResFormat == null) {
+                targetResFormat = mediaFrameSourceVideoPreview.SupportedFormats[0];
+                Debug.Log(TAG + ": Unable to choose the selected format, fall back");
+                targetResFormat = mediaFrameSourceVideoPreview.SupportedFormats.OrderBy(x => x.VideoFormat.Width * x.VideoFormat.Height).FirstOrDefault();
+            }
+            
+            await mediaFrameSourceVideoPreview.SetFormatAsync(targetResFormat);
+            frameReader = await mediaCapture.CreateFrameReaderAsync(mediaFrameSourceVideoPreview, targetResFormat.Subtype);
             frameReader.FrameArrived += OnFrameArrived;
-            controller.frameWidth = Convert.ToInt32(minResFormat.VideoFormat.Width);
-            controller.frameHeight = Convert.ToInt32(minResFormat.VideoFormat.Height);
+            controller.frameWidth = Convert.ToInt32(targetResFormat.VideoFormat.Width);
+            controller.frameHeight = Convert.ToInt32(targetResFormat.VideoFormat.Height);
             videoBufferSize = controller.frameWidth * controller.frameHeight * 4;
-            Debug.Log(TAG + ": FrameReader is successfully initialized");
+            Debug.Log(TAG + ": FrameReader is successfully initialized, " + controller.frameWidth + "x" + controller.frameHeight +
+                ", Framerate: " + targetResFormat.FrameRate.Numerator + "/" + targetResFormat.FrameRate.Denominator);
         }
         catch (Exception e) {
             Debug.Log(TAG + ": FrameReader is not initialized");
@@ -318,9 +391,14 @@ public class ARUWPVideo : MonoBehaviour {
             Debug.Log(TAG + ": not able to find ARUWPController");
             Application.Quit();
         }
-        mediaMaterial = previewPlane.GetComponent<MeshRenderer>().material;
         if (videoPreview) {
-            EnablePreview();
+            if (previewPlane != null) {
+                mediaMaterial = previewPlane.GetComponent<MeshRenderer>().material;
+                EnablePreview();
+            }
+            else {
+                videoPreview = false;
+            }
         }
     }
 
@@ -349,13 +427,15 @@ public class ARUWPVideo : MonoBehaviour {
     private void Update() {
 
         if (signalInitDone) {
-            mediaTexture = new Texture2D(controller.frameWidth, controller.frameHeight, TextureFormat.RGBA32, false);
-            mediaMaterial.mainTexture = mediaTexture;
+            if (mediaMaterial != null) {
+                mediaTexture = new Texture2D(controller.frameWidth, controller.frameHeight, TextureFormat.RGBA32, false);
+                mediaMaterial.mainTexture = mediaTexture;
+            }
             signalInitDone = false;
         }
 
 
-        if (videoPreview && previewPlane.activeSelf && mediaTexture != null && signalTrackingUpdated) {
+        if (videoPreview && previewPlane != null && mediaMaterial != null && signalTrackingUpdated) {
             UpdateVideoPreview();
         }
 
@@ -406,8 +486,10 @@ public class ARUWPVideo : MonoBehaviour {
     /// </summary>
     public void EnablePreview() {
         Debug.Log(TAG + ": EnablePreview() called");
-        previewPlane.SetActive(true);
-        videoPreview = true;
+        if (previewPlane != null) {
+            previewPlane.SetActive(true);
+            videoPreview = true;
+        }
     }
 
     /// <summary>
@@ -416,8 +498,10 @@ public class ARUWPVideo : MonoBehaviour {
     /// </summary>
     public void DisablePreview() {
         Debug.Log(TAG + ": DisablePreview() called");
-        previewPlane.SetActive(false);
-        videoPreview = false;
+        if (previewPlane != null) {
+            previewPlane.SetActive(false);
+            videoPreview = false;
+        }
     }
 
     /// <summary>

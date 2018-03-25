@@ -519,7 +519,7 @@ PlayerSettings:
   metroCertificatePassword: 
   metroCertificateSubject: LongQian
   metroCertificateIssuer: LongQian
-  metroCertificateNotAfter: 80868f7132ebd301
+  metroCertificateNotAfter: 803e13e566e3d401
   metroApplicationDescription: ARToolKit running on HoloLens
   wsaImages:
     65636: Assets/Sample/Logo/StoreLogo.png
