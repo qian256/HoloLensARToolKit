@@ -81,7 +81,16 @@ The following example videos are taken with HoloLensARToolKit **[v0.1](https://g
 
 ## Academic Citation
 
-Coming soon.
+If this work helps your research, please cite the following paper:
+
+```tex
+@article{azimiqian2018alignment,
+  title={Alignment of the Virtual Scene to the 3D Display Space of a Mixed Reality Head-Mounted Display},
+  author={Azimi, Ehsan and Qian, Long and Navab, Nassir and Kazanzides, Peter},
+  journal={arXiv preprint arXiv:1703.05834},
+  year={2018}
+}
+```
 
 
 ---
