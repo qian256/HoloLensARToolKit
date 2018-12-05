@@ -235,14 +235,14 @@ public static class ARUWP {
 
     #region Constants declaration that used across the project
     public const int ARUWP_MARKER_OPTION_FILTERED = 1;                         // bool, true for filtering enabled.
-	public const int ARUWP_MARKER_OPTION_FILTER_SAMPLE_RATE = 2;               // float, sample rate for filter calculations.
-	public const int ARUWP_MARKER_OPTION_FILTER_CUTOFF_FREQ = 3;               // float, cutoff frequency of filter.
-	public const int ARUWP_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION = 4;  // bool, true to use continuous pose estimate.
-	public const int ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE = 5;                // float, confidence value of most recent marker match
-	public const int ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE_CUTOFF = 6;         // float, minimum allowable confidence value used in marker matching.
-	public const int ARUWP_MARKER_OPTION_MULTI_MIN_SUBMARKERS = 8;             // int, minimum number of submarkers for tracking to be valid.
-	public const int ARUWP_MARKER_OPTION_MULTI_MIN_CONF_MATRIX = 9;            // float, minimum confidence value for submarker matrix tracking to be valid.
-	public const int ARUWP_MARKER_OPTION_MULTI_MIN_CONF_PATTERN = 10;          // float, minimum confidence value for submarker pattern tracking to be valid.
+    public const int ARUWP_MARKER_OPTION_FILTER_SAMPLE_RATE = 2;               // float, sample rate for filter calculations.
+    public const int ARUWP_MARKER_OPTION_FILTER_CUTOFF_FREQ = 3;               // float, cutoff frequency of filter.
+    public const int ARUWP_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION = 4;  // bool, true to use continuous pose estimate.
+    public const int ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE = 5;                // float, confidence value of most recent marker match
+    public const int ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE_CUTOFF = 6;         // float, minimum allowable confidence value used in marker matching.
+    public const int ARUWP_MARKER_OPTION_MULTI_MIN_SUBMARKERS = 8;             // int, minimum number of submarkers for tracking to be valid.
+    public const int ARUWP_MARKER_OPTION_MULTI_MIN_CONF_MATRIX = 9;            // float, minimum confidence value for submarker matrix tracking to be valid.
+    public const int ARUWP_MARKER_OPTION_MULTI_MIN_CONF_PATTERN = 10;          // float, minimum confidence value for submarker pattern tracking to be valid.
 
     
 

@@ -248,7 +248,6 @@ public class ARUWPMarker : MonoBehaviour{
     /// </summary>
     private GameObject dummyGameObject;
 
-
     /// <summary>
     /// Class representing the tracking information. [public use]
     /// </summary>
@@ -364,13 +363,14 @@ public class ARUWPMarker : MonoBehaviour{
             Debug.Log(TAG + ": Main Camera does not exist in the scene");
             Application.Quit();
         }
+
         else {
             if (!anchoredToWorld) {
                 target.transform.SetParent(holoLensCamera.transform);
             }
             else {
                 dummyGameObject = new GameObject("Dummy");
-                dummyGameObject.transform.SetParent(holoLensCamera.transform);
+                dummyGameObject.transform.SetParent(controller.LocatableCameraRoot.transform);
             }
         }
         // magic function initialization
@@ -390,21 +390,28 @@ public class ARUWPMarker : MonoBehaviour{
                 latestTransMatrix = ARUWPUtils.ConvertARUWPFloatArrayToMatrix4x4(latestTrackingInfo.trans);
 
                 if (performMagicFunction) { MagicFunction(); }
-                
-                if (target != null ) {
-                    if (!anchoredToWorld) {
-                        if (applyRotation) {
+
+                if (target != null)
+                {
+                    if (!anchoredToWorld)
+                    {
+                        if (applyRotation)
+                        {
                             target.transform.localRotation = ARUWPUtils.QuaternionFromMatrix(latestTransMatrix);
                         }
-                        if (applyTranslation) {
+                        if (applyTranslation)
+                        {
                             target.transform.localPosition = ARUWPUtils.PositionFromMatrix(latestTransMatrix);
                         }
                     }
-                    else {
-                        if (applyRotation) {
+                    else
+                    {
+                        if (applyRotation)
+                        {
                             dummyGameObject.transform.localRotation = ARUWPUtils.QuaternionFromMatrix(latestTransMatrix);
                         }
-                        if (applyTranslation) {
+                        if (applyTranslation)
+                        {
                             dummyGameObject.transform.localPosition = ARUWPUtils.PositionFromMatrix(latestTransMatrix);
                         }
                         ARUWPUtils.SetMatrix4x4ToGameObject(ref target, dummyGameObject.transform.localToWorldMatrix);

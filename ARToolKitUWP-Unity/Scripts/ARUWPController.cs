@@ -141,6 +141,15 @@ public class ARUWPController : MonoBehaviour {
     [Range(0f, 0.5f)]
     public float borderSize = 0.25f;
 
+    /// <summary>
+    /// GameObject that represents the location of the locatable camera. Whenever we get a new
+    /// frame, we update the pose of this GameObject so that it is at the position of where the
+    /// locatable camera was during that frame. Note that this is not the same as the "holoLensCamera"
+    /// object -- the "Main Camera" of the scene is a virtual location defined by the HoloLens IMU,
+    /// not by the HoloLens locatable camera. [internal use]
+    /// </summary>
+    public GameObject LocatableCameraRoot { get; private set; }
+
 
     #region Public Enums
 
@@ -446,6 +455,9 @@ public class ARUWPController : MonoBehaviour {
     /// Create unaddedMarkers list, preparing the initialization. [internal use]
     /// </summary>
     private void Start() {
+
+        LocatableCameraRoot = new GameObject("Locatable Camera Root");
+        
         videoManager = GetComponent<ARUWPVideo>();
         if (videoManager == null) {
             Debug.Log(TAG + ": not able to find ARUWPVideo");

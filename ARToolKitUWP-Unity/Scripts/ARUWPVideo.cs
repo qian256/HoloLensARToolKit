@@ -40,6 +40,8 @@ using System;
 using Windows.Graphics.Imaging;
 using System.Threading;
 using System.Linq;
+using Windows.Perception.Spatial;
+using UnityEngine.XR.WSA;
 #endif
 
 /// <summary>
@@ -133,6 +135,11 @@ public class ARUWPVideo : MonoBehaviour {
     private SoftwareBitmap _bitmap = null;
 
     /// <summary>
+    /// Temporary UnityEngine.Matrix4x4 used for exchanging camera view matrix between threads. [internal use]
+    /// </summary>
+    private float[] _cameraToWorldMatrix;
+
+    /// <summary>
     /// Signal indicating that the video has updated between the last render loop, the previous
     /// Update() and the current Update(). [internal use]
     /// </summary>
@@ -147,6 +154,11 @@ public class ARUWPVideo : MonoBehaviour {
     /// The SoftwareBitmap used for Unity UI thread for video previewing. [internal use]
     /// </summary>
     private SoftwareBitmap updateBitmap = null;
+
+    /// <summary>
+    /// The view matrix used for Unity UI thread for updating the parent object for tracked objects. [internal use]
+    /// </summary>
+    private float[] updateCameraToWorldMatrix = null;
 
     /// <summary>
     /// Windows MediaCapture object used for UWP video loop. [internal use]
@@ -331,6 +343,24 @@ public class ARUWPVideo : MonoBehaviour {
         }
     }
 
+    internal SpatialCoordinateSystem worldOrigin { get; private set; }
+    public IntPtr WorldOriginPtr
+    {
+        set
+        {
+            //worldOrigin = Marshal.PtrToStructure<SpatialCoordinateSystem>(value);
+
+            if (value == null)
+            {
+                throw new ArgumentException("World origin pointer is null");
+            }
+
+            var obj = Marshal.GetObjectForIUnknown(value);
+            var scs = obj as SpatialCoordinateSystem;
+            worldOrigin = scs ?? throw new InvalidCastException("Failed to set SpatialCoordinateSystem from IntPtr");
+        }
+    }
+
     /// <summary>
     /// The task to asynchronously stops the video pipeline and frame reading. The task should
     /// be executed when the ARUWPController status is ARUWP_STATUS_RUNNING, and will change it
@@ -351,8 +381,169 @@ public class ARUWPVideo : MonoBehaviour {
         return true;
     }
 
+    /// <summary>
+    /// The guid for getting the view transform from the frame sample.
+    /// See https://developer.microsoft.com/en-us/windows/mixed-reality/locatable_camera#locating_the_device_camera_in_the_world
+    /// </summary>
+    static Guid viewTransformGuid = new Guid("4E251FA4-830F-4770-859A-4B8D99AA809B");
+
+    /// <summary>
+    /// The guid for getting the projection transform from the frame sample.
+    /// See https://developer.microsoft.com/en-us/windows/mixed-reality/locatable_camera#locating_the_device_camera_in_the_world
+    /// </summary>
+    static Guid projectionTransformGuid = new Guid("47F9FCB5-2A02-4F26-A477-792FDF95886A");
+
+    /// <summary>
+    /// The guid for getting the camera coordinate system for the frame sample.
+    /// See https://developer.microsoft.com/en-us/windows/mixed-reality/locatable_camera#locating_the_device_camera_in_the_world
+    /// </summary>
+    static Guid cameraCoordinateSystemGuid = new Guid("9D13C82F-2199-4E67-91CD-D1A4181F2534");
+
+    /// <summary>
+    /// From https://github.com/VulcanTechnologies/HoloLensCameraStream/blob/master/HoloLensCameraStream/Plugin%20Project/VideoCaptureSample.cs
+    /// </summary>
+    /// <returns>The identity matrix as a size-16 float array.</returns>
+    static float[] GetIdentityMatrixFloatArray()
+    {
+        return new float[] { 1f, 0, 0, 0, 0, 1f, 0, 0, 0, 0, 1f, 0, 0, 0, 0, 1f };
+    }
+
+    private System.Numerics.Matrix4x4 ConvertByteArrayToMatrix4x4(byte[] matrixAsBytes)
+    {
+        if (matrixAsBytes == null)
+        {
+            throw new ArgumentNullException("matrixAsBytes");
+        }
+
+        if (matrixAsBytes.Length != 64)
+        {
+            throw new Exception("Cannot convert byte[] to Matrix4x4. Size of array should be 64, but it is " + matrixAsBytes.Length);
+        }
+
+        var m = matrixAsBytes;
+        return new System.Numerics.Matrix4x4(
+            BitConverter.ToSingle(m, 0),
+            BitConverter.ToSingle(m, 4),
+            BitConverter.ToSingle(m, 8),
+            BitConverter.ToSingle(m, 12),
+            BitConverter.ToSingle(m, 16),
+            BitConverter.ToSingle(m, 20),
+            BitConverter.ToSingle(m, 24),
+            BitConverter.ToSingle(m, 28),
+            BitConverter.ToSingle(m, 32),
+            BitConverter.ToSingle(m, 36),
+            BitConverter.ToSingle(m, 40),
+            BitConverter.ToSingle(m, 44),
+            BitConverter.ToSingle(m, 48),
+            BitConverter.ToSingle(m, 52),
+            BitConverter.ToSingle(m, 56),
+            BitConverter.ToSingle(m, 60));
+    }
+
+    private float[] ConvertMatrixToFloatArray(System.Numerics.Matrix4x4 matrix)
+    {
+        return new float[16] {
+                matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+                matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+                matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+                matrix.M41, matrix.M42, matrix.M43, matrix.M44 };
+    }
+
+    /// <summary>
+    /// Modified from https://github.com/VulcanTechnologies/HoloLensCameraStream/blob/master/HoloLensCameraStream/Plugin%20Project/VideoCaptureSample.cs
+    /// This returns the transform matrix at the time the photo was captured, if location data if available.
+    /// If it's not, that is probably an indication that the HoloLens is not tracking and its location is not known.
+    /// It could also mean the VideoCapture stream is not running.
+    /// If location data is unavailable then the camera to world matrix will be set to the identity matrix.
+    /// </summary>
+    /// <param name="matrix">The transform matrix used to convert between coordinate spaces.
+    /// The matrix will have to be converted to a Unity matrix before it can be used by methods in the UnityEngine namespace.
+    /// See https://forum.unity3d.com/threads/locatable-camera-in-unity.398803/ for details.</param>
+    public bool TryGetCameraToWorldMatrix(MediaFrameReference frameReference, out float[] outMatrix)
+    {
+        if (frameReference.Properties.ContainsKey(viewTransformGuid) == false)
+        {
+            outMatrix = GetIdentityMatrixFloatArray();
+            return false;
+        }
+
+        if (worldOrigin == null)
+        {
+            outMatrix = GetIdentityMatrixFloatArray();
+            return false;
+        }
+
+        System.Numerics.Matrix4x4 cameraViewTransform = ConvertByteArrayToMatrix4x4(frameReference.Properties[viewTransformGuid] as byte[]);
+        if (cameraViewTransform == null)
+        {
+            outMatrix = GetIdentityMatrixFloatArray();
+            return false;
+        }
+
+        SpatialCoordinateSystem cameraCoordinateSystem = frameReference.Properties[cameraCoordinateSystemGuid] as SpatialCoordinateSystem;
+        if (cameraCoordinateSystem == null)
+        {
+            outMatrix = GetIdentityMatrixFloatArray();
+            return false;
+        }
+
+        System.Numerics.Matrix4x4? cameraCoordsToUnityCoordsMatrix = cameraCoordinateSystem.TryGetTransformTo(worldOrigin);
+        if (cameraCoordsToUnityCoordsMatrix == null)
+        {
+            outMatrix = GetIdentityMatrixFloatArray();
+            return false;
+        }
+
+        // Transpose the matrices to obtain a proper transform matrix
+        cameraViewTransform = System.Numerics.Matrix4x4.Transpose(cameraViewTransform);
+
+        System.Numerics.Matrix4x4 cameraCoordsToUnityCoords = System.Numerics.Matrix4x4.Transpose(cameraCoordsToUnityCoordsMatrix.Value);
+
+        System.Numerics.Matrix4x4 viewToWorldInCameraCoordsMatrix;
+        System.Numerics.Matrix4x4.Invert(cameraViewTransform, out viewToWorldInCameraCoordsMatrix);
+        System.Numerics.Matrix4x4 viewToWorldInUnityCoordsMatrix = System.Numerics.Matrix4x4.Multiply(cameraCoordsToUnityCoords, viewToWorldInCameraCoordsMatrix);
+
+        // Change from right handed coordinate system to left handed UnityEngine
+        viewToWorldInUnityCoordsMatrix.M31 *= -1f;
+        viewToWorldInUnityCoordsMatrix.M32 *= -1f;
+        viewToWorldInUnityCoordsMatrix.M33 *= -1f;
+        viewToWorldInUnityCoordsMatrix.M34 *= -1f;
+
+        outMatrix = ConvertMatrixToFloatArray(viewToWorldInUnityCoordsMatrix);
+
+        return true;
+    }
 
 
+    /// <summary>
+    /// Helper method for converting into UnityEngine.Matrix4x4
+    /// </summary>
+    /// <param name="matrixAsArray"></param>
+    /// <returns></returns>
+    public static UnityEngine.Matrix4x4 ConvertFloatArrayToMatrix4x4(float[] matrixAsArray)
+    {
+        //There is probably a better way to be doing this but System.Numerics.Matrix4x4 is not available 
+        //in Unity and we do not include UnityEngine in the plugin.
+        UnityEngine.Matrix4x4 m = new UnityEngine.Matrix4x4();
+        m.m00 = matrixAsArray[0];
+        m.m01 = matrixAsArray[1];
+        m.m02 = matrixAsArray[2];
+        m.m03 = matrixAsArray[3];
+        m.m10 = matrixAsArray[4];
+        m.m11 = matrixAsArray[5];
+        m.m12 = matrixAsArray[6];
+        m.m13 = matrixAsArray[7];
+        m.m20 = matrixAsArray[8];
+        m.m21 = matrixAsArray[9];
+        m.m22 = matrixAsArray[10];
+        m.m23 = matrixAsArray[11];
+        m.m30 = matrixAsArray[12];
+        m.m31 = matrixAsArray[13];
+        m.m32 = matrixAsArray[14];
+        m.m33 = matrixAsArray[15];
+
+        return m;
+    }
 
     /// <summary>
     /// The callback that is triggered when new video preview frame arrives. In this function,
@@ -365,6 +556,15 @@ public class ARUWPVideo : MonoBehaviour {
         ARUWPUtils.VideoTick();
         using (var frame = sender.TryAcquireLatestFrame()) {
             if (frame != null) {
+
+                float[] cameraToWorldMatrixAsFloat;
+                if (TryGetCameraToWorldMatrix(frame, out cameraToWorldMatrixAsFloat) == false)
+                {
+                    return;
+                }
+
+                Interlocked.Exchange(ref _cameraToWorldMatrix, cameraToWorldMatrixAsFloat);
+
                 var softwareBitmap = SoftwareBitmap.Convert(frame.VideoMediaFrame.SoftwareBitmap, BitmapPixelFormat.Rgba8, BitmapAlphaMode.Ignore);
                 if (videoPreview) {
                     Interlocked.Exchange(ref _bitmap, softwareBitmap);
@@ -386,6 +586,10 @@ public class ARUWPVideo : MonoBehaviour {
     /// initialized depending on the initial value. [internal use]
     /// </summary>
     private void Start() {
+
+        // Fetch a pointer to Unity's spatial coordinate system
+        WorldOriginPtr = WorldManager.GetNativeISpatialCoordinateSystemPtr();
+
         controller = GetComponent<ARUWPController>();
         if (controller == null) {
             Debug.Log(TAG + ": not able to find ARUWPController");
@@ -400,6 +604,23 @@ public class ARUWPVideo : MonoBehaviour {
                 videoPreview = false;
             }
         }
+    }
+
+    private void UpdateCameraParentPose()
+    {
+        Interlocked.Exchange(ref updateCameraToWorldMatrix, _cameraToWorldMatrix);
+
+        UnityEngine.Matrix4x4 cameraToWorldMatrix = ConvertFloatArrayToMatrix4x4(updateCameraToWorldMatrix);
+
+        Transform locatableCameraTransform = controller.LocatableCameraRoot.transform;
+
+        // Note: we can't just directly convert the matrix into the rotation/position that Unity expects.
+        // We need to convert it. See https://forum.unity.com/threads/locatable-camera-in-unity.398803/
+        Vector3 position = cameraToWorldMatrix.MultiplyPoint(Vector3.zero);
+        Quaternion rotation = Quaternion.LookRotation(-cameraToWorldMatrix.GetColumn(2), cameraToWorldMatrix.GetColumn(1));
+
+        locatableCameraTransform.position = position;
+        locatableCameraTransform.rotation = rotation;
     }
 
     /// <summary>
@@ -434,9 +655,15 @@ public class ARUWPVideo : MonoBehaviour {
             signalInitDone = false;
         }
 
+        if (signalTrackingUpdated)
+        {
+            UpdateCameraParentPose();
 
-        if (videoPreview && previewPlane != null && mediaMaterial != null && signalTrackingUpdated) {
-            UpdateVideoPreview();
+
+            if (videoPreview && previewPlane != null && mediaMaterial != null)
+            {
+                UpdateVideoPreview();
+            }
         }
 
         videoDeltaTime = ARUWPUtils.GetVideoDeltaTime();
@@ -477,7 +704,7 @@ public class ARUWPVideo : MonoBehaviour {
 
 
 #else
-    
+
 #endif
 
     /// <summary>
