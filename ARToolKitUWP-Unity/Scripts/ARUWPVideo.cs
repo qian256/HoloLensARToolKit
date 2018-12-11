@@ -565,7 +565,9 @@ public class ARUWPVideo : MonoBehaviour {
 
                 Interlocked.Exchange(ref _cameraToWorldMatrix, cameraToWorldMatrixAsFloat);
 
-                var softwareBitmap = SoftwareBitmap.Convert(frame.VideoMediaFrame.SoftwareBitmap, BitmapPixelFormat.Rgba8, BitmapAlphaMode.Ignore);
+                var originalSoftwareBitmap = frame.VideoMediaFrame.SoftwareBitmap;
+                var softwareBitmap = SoftwareBitmap.Convert(originalSoftwareBitmap, BitmapPixelFormat.Rgba8, BitmapAlphaMode.Ignore);
+                originalSoftwareBitmap?.Dispose();
                 if (videoPreview) {
                     Interlocked.Exchange(ref _bitmap, softwareBitmap);
                     controller.ProcessFrameAsync(SoftwareBitmap.Copy(softwareBitmap));
