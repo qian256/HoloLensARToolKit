@@ -559,12 +559,12 @@ PlayerSettings:
     14: 
   platformArchitecture: {}
   scriptingBackend:
-    Metro: 2
+    Metro: 1
   il2cppCompilerConfiguration: {}
   incrementalIl2cppBuild: {}
-  allowUnsafeCode: 0
+  allowUnsafeCode: 1
   additionalIl2CppArgs: 
-  scriptingRuntimeVersion: 0
+  scriptingRuntimeVersion: 1
   apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
@@ -574,7 +574,7 @@ PlayerSettings:
   metroCertificatePassword: 
   metroCertificateSubject: LongQian
   metroCertificateIssuer: LongQian
-  metroCertificateNotAfter: 803e13e566e3d401
+  metroCertificateNotAfter: 007f188685c6d501
   metroApplicationDescription: ARToolKit running on HoloLens
   wsaImages:
     65636: Assets/Sample/Logo/StoreLogo.png
@@ -713,7 +713,7 @@ PlayerSettings:
       daydreamIconBackground: {fileID: 0}
   cloudServicesEnabled: {}
   facebookSdkVersion: 7.9.1
-  apiCompatibilityLevel: 2
+  apiCompatibilityLevel: 3
   cloudProjectId: 
   projectName: 
   organizationId: 
