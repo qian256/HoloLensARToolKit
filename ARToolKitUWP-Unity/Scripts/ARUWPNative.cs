@@ -30,6 +30,7 @@ using UnityEngine;
 using System.Runtime.InteropServices;
 using System.Text;
 using System;
+using AOT;
 
 /// <summary>
 /// The ARUWP class interfaces native plugin of ARToolKitUWP.dll (unmanaged),
@@ -86,6 +87,7 @@ public static class ARUWP {
     /// otherwise use Debug.Log to output it to the VS console. [internal use]
     /// </summary>
     /// <param name="msg">Input string object</param>
+    [MonoPInvokeCallback(typeof(ARUWP.LogCallback))]
     public static void Log(String msg) {
         // If there is a logCallback then use that to handle the log message. Otherwise simply
         // print out on the debug console.
@@ -103,131 +105,131 @@ public static class ARUWP {
     [DllImport("ARToolKitUWP.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void aruwpSetLogLevel(int logLevel);
 
-    [DllImport("ARToolKitUWP.dll")]
+    [DllImport("ARToolKitUWP.dll", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
     public static extern bool aruwpInitialiseAR(int width, int height, int pixelFormat);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpInitialiseARWithOptions(int width, int height, int pixelFormat, int pattSize, int pattCountMax);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpGetARToolKitVersion([MarshalAs(UnmanagedType.LPStr)]StringBuilder buffer, int length);
 
-    [DllImport("ARToolKitUWP", CharSet = CharSet.Ansi)]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpStartRunningBuffer(byte[] cparaBuff, int cparaBuffLen);
 
-    [DllImport("ARToolKitUWP", CharSet = CharSet.Ansi)]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpStartRunning([MarshalAs(UnmanagedType.LPStr)] string lpString);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpIsRunning();
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpStopRunning();
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpShutdownAR();
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpGetFrameParams(out int width, out int height, out int pixelSize, [MarshalAs(UnmanagedType.LPStr)]StringBuilder pixelFormatBuffer, int pixelFormatBufferLen); //todo
     
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpUpdate(IntPtr frame);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern void aruwpSetVideoThreshold(int threshold);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern int aruwpGetVideoThreshold();
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern void aruwpSetVideoThresholdMode(int mode);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern int aruwpGetVideoThresholdMode();
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern void aruwpSetLabelingMode(int mode);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern int aruwpGetLabelingMode();
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern void aruwpSetPatternDetectionMode(int mode);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern int aruwpGetPatternDetectionMode();
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern void aruwpSetBorderSize(float mode);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern float aruwpGetBorderSize();
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern void aruwpSetMatrixCodeType(int type);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern int aruwpGetMatrixCodeType();
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern void aruwpSetImageProcMode(int mode);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern int aruwpGetImageProcMode();
 
-    [DllImport("ARToolKitUWP.dll", CharSet = CharSet.Ansi)]
+    [DllImport("ARToolKitUWP.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     public static extern int aruwpAddMarker([MarshalAs(UnmanagedType.LPStr)] string lpString);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpRemoveMarker(int markerID);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern int aruwpRemoveAllMarkers();
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpQueryMarkerVisibility(int markerID);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpQueryMarkerTransformation(int markerID, [MarshalAs(UnmanagedType.LPArray, SizeConst = 16)] float[] matrix);
     
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern int aruwpGetMarkerPatternCount(int markerID);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpGetMarkerPatternConfig(int markerID, int patternID, [MarshalAs(UnmanagedType.LPArray, SizeConst = 16)] float[] matrix, out float width, out float height, out int imageSizeX, out int imageSizeY);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAsAttribute(UnmanagedType.I1)]
     public static extern bool aruwpGetMarkerOptionBool(int markerID, int option);
 
     // bool parsed as integer
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern void aruwpSetMarkerOptionBool(int markerID, int option, int value);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern int aruwpGetMarkerOptionInt(int markerID, int option);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern void aruwpSetMarkerOptionInt(int markerID, int option, int value);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern float aruwpGetMarkerOptionFloat(int markerID, int option);
 
-    [DllImport("ARToolKitUWP")]
+    [DllImport("ARToolKitUWP", CallingConvention = CallingConvention.Cdecl)]
     public static extern void aruwpSetMarkerOptionFloat(int markerID, int option, float value);
 
     #endregion
@@ -235,14 +237,14 @@ public static class ARUWP {
 
     #region Constants declaration that used across the project
     public const int ARUWP_MARKER_OPTION_FILTERED = 1;                         // bool, true for filtering enabled.
-	public const int ARUWP_MARKER_OPTION_FILTER_SAMPLE_RATE = 2;               // float, sample rate for filter calculations.
-	public const int ARUWP_MARKER_OPTION_FILTER_CUTOFF_FREQ = 3;               // float, cutoff frequency of filter.
-	public const int ARUWP_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION = 4;  // bool, true to use continuous pose estimate.
-	public const int ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE = 5;                // float, confidence value of most recent marker match
-	public const int ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE_CUTOFF = 6;         // float, minimum allowable confidence value used in marker matching.
-	public const int ARUWP_MARKER_OPTION_MULTI_MIN_SUBMARKERS = 8;             // int, minimum number of submarkers for tracking to be valid.
-	public const int ARUWP_MARKER_OPTION_MULTI_MIN_CONF_MATRIX = 9;            // float, minimum confidence value for submarker matrix tracking to be valid.
-	public const int ARUWP_MARKER_OPTION_MULTI_MIN_CONF_PATTERN = 10;          // float, minimum confidence value for submarker pattern tracking to be valid.
+    public const int ARUWP_MARKER_OPTION_FILTER_SAMPLE_RATE = 2;               // float, sample rate for filter calculations.
+    public const int ARUWP_MARKER_OPTION_FILTER_CUTOFF_FREQ = 3;               // float, cutoff frequency of filter.
+    public const int ARUWP_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION = 4;  // bool, true to use continuous pose estimate.
+    public const int ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE = 5;                // float, confidence value of most recent marker match
+    public const int ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE_CUTOFF = 6;         // float, minimum allowable confidence value used in marker matching.
+    public const int ARUWP_MARKER_OPTION_MULTI_MIN_SUBMARKERS = 8;             // int, minimum number of submarkers for tracking to be valid.
+    public const int ARUWP_MARKER_OPTION_MULTI_MIN_CONF_MATRIX = 9;            // float, minimum confidence value for submarker matrix tracking to be valid.
+    public const int ARUWP_MARKER_OPTION_MULTI_MIN_CONF_PATTERN = 10;          // float, minimum confidence value for submarker pattern tracking to be valid.
 
     
 
