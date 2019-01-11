@@ -4,7 +4,7 @@ Unity3D package interfacing ARToolKitUWP, with C# scripts, pre-built plugin, cus
 
 Author: [Long Qian](http://longqian.me/aboutme)
 
-Date: 2017-05-15
+Date: 2019-01-11
 
 ## Scripts
 

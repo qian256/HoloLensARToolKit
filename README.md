@@ -2,7 +2,7 @@ HoloLens with ARToolKit v0.2
 ===
 Author: [Long Qian](http://longqian.me/aboutme)
 
-Date: 2017-07-16
+Date: 2019-01-11
 
 ## Overview
 **HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) (v5.3.2) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us), or generally UWP (Universal Windows Platform). With fiducial marker tracking provided by ARToolKit, plus the indoor localization of HoloLens, many Augmented Reality applications would be made possible.
@@ -20,6 +20,8 @@ HoloLensARToolKit v0.2 involves a re-write of video pipeline, taking advantage o
 The current implementation uses .NET [Task-based Asynchronous Pattern](https://msdn.microsoft.com/en-us/library/hh873177(v=vs.141).aspx) widely, to parallelize video capture, tracking, and Unity rendering. The dependency between each module is loosened. HoloLensARToolKit v0.2 is able to achieve: **rendering at 45-60 fps, video capture at 30 fps, and tracking at 25-30 fps** performance.
 
 In addition, matrix code mismatch issue is fixed, and coordinate system representation is more consistent. 
+
+Credit to [Daniel Anderson](https://github.com/DanAndersen): IL2CPP scripting backend is now supported. HoloLens locatable camera pose is integrated to make the tracking more stable.
 
 
 ## Example
@@ -43,18 +45,13 @@ The following example videos are taken with HoloLensARToolKit **[v0.1](https://g
 	* HoloLens Emulator and Vuforia are not required.
 	* Visual Studio 2017 is preferred.
 2. Launch [Unity3D](https://unity3d.com/), open project folder ```HoloLensARSample```.
-	* Unity 5.6.x is preferred.
-3. Import the unity package ```ARToolKitUWP.unitypackage```.
-4. Open one of the sample scenes
+3. Import ```ARToolKitUWP.unitypackage``` and then open one of the sample scenes
 	* ```Assets/Sample/HoloLensARToolKitSingle.unity```
 	* ```Assets/Sample/HoloLensARToolKitCube.unity```
 	* ```Assets/Sample/HoloLensARToolKitMulti.unity```
 	* ```Assets/Sample/HoloLensARToolKitCoords.unity```
-5. Configure HoloLens deployment settings and deploy to HoloLens.
-	* See Chapter 4 and 5 of [Holograms 100](https://developer.microsoft.com/en-us/windows/mixed-reality/holograms_100).
-	* Make sure "Allow Unsafe Code" is checked in the project `Assembly-CSharp`.
-	* Deploy using `Release|x86|Start Debugging` to see Debug logs.
-	* Deploy using `Release|x86|Start Without Debugging` to maximize the performance.
+4. Configure the Unity player settings to build Visual Studio 2017 solution.
+5. Use Visual Studio to build and deploy application to HoloLens.
 6. Prepare the correspondent printed marker of ARToolKit.
 	* Marker images are [Here](https://github.com/artoolkit/artoolkit5/tree/master/doc/patterns).
 	* Make sure the printed marker size is same as configured in Unity.
@@ -63,10 +60,10 @@ The following example videos are taken with HoloLensARToolKit **[v0.1](https://g
 
 ## Compatibility Tested
 
-1. Unity 5.6.0f3
+1. Unity 2018.3.1.f1
 2. Visual Studio 2017 (Toolset v141)
 3. ARToolKit 5.3.2
-4. Windows 10 SDK 10.0.10240.0 to 10.0.14393.0
+4. Windows 10 SDK 10.0.10240.0 to 10.0.17134.0
 
 ## Understand HoloLensARToolKit v0.2
 - [Overview: ARToolKit on HoloLens](http://longqian.me/2017/01/20/artoolkit-on-hololens/)

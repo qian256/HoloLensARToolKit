@@ -41,3 +41,5 @@ sysinfo.txt
 
 # Builds
 *.apk
+
+Logs/

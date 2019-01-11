@@ -450,14 +450,21 @@ public class ARUWPController : MonoBehaviour {
         StartFrameReaderAsync();
     }
 
+
+    /// <summary>
+    /// Unity Monobehavior function. Initialize the locatable camera root before
+    /// ARUWPMarker.Start() reference this object. [internal use]
+    /// </summary>
+    private void OnEnable() {
+        LocatableCameraRoot = new GameObject("Locatable Camera Root");
+    }
+
     /// <summary>
     /// Unity Monobehavior function. ARUWPVideo is set here. Target the render frame rate to 60.
     /// Create unaddedMarkers list, preparing the initialization. [internal use]
     /// </summary>
     private void Start() {
 
-        LocatableCameraRoot = new GameObject("Locatable Camera Root");
-        
         videoManager = GetComponent<ARUWPVideo>();
         if (videoManager == null) {
             Debug.Log(TAG + ": not able to find ARUWPVideo");

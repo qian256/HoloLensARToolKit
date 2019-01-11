@@ -369,7 +369,8 @@ public class ARUWPMarker : MonoBehaviour{
                 target.transform.SetParent(holoLensCamera.transform);
             }
             else {
-                dummyGameObject = new GameObject("Dummy");
+                // Create dummy object with unique object ID for different markers
+                dummyGameObject = new GameObject("Dummy" + GetInstanceID());
                 dummyGameObject.transform.SetParent(controller.LocatableCameraRoot.transform);
             }
         }

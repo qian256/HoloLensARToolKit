@@ -4,7 +4,7 @@ A Unity3D application using ARToolKitUWP-Unity.
 
 Author: [Long Qian](http://longqian.me/aboutme)
 
-Date: 2017-05-13
+Date: 2019-01-11
 
 ## Overview
 

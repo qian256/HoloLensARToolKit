@@ -11,9 +11,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Sample/HoloLensARToolKitSingle.unity
     guid: 6b838de312e6ba848843df3e8292bf38
-  - enabled: 1
+  - enabled: 0
     path: Assets/Sample/HoloLensARToolKitCube.unity
     guid: 0014a31ea511f3f4394185e1a6c63cab
-  - enabled: 0
+  - enabled: 1
     path: Assets/Sample/HoloLensARToolKitCoords.unity
     guid: fb353b4e7b8ef0746a1a8a81db9ffbe0
+  m_configObjects: {}
