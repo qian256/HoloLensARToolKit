@@ -17,7 +17,7 @@ This repository contains:
 
 HoloLensARToolKit v0.2 involves a re-write of video pipeline, taking advantage of [Windows.Media.Capture APIs](https://docs.microsoft.com/en-us/uwp/api/windows.media.capture). Compared to [v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1) where the frame data is achieved via Unity WebcamTexture, Windows UWP APIs provide direct access to video control.
 
-The current implementation uses .NET [Task-based Asynchronous Pattern](https://msdn.microsoft.com/en-us/library/hh873177(v=vs.141).aspx) widely, to parallelize video capture, tracking, and Unity rendering. The dependency between each module is loosened. HoloLensARToolKit v0.2 is able to achieve: **rendering at 45-60 fps, video capture at 30 fps, and tracking at 25-30 fps** performance.
+The current implementation uses .NET [Task-based Asynchronous Pattern](https://msdn.microsoft.com/en-us/library/hh873177(v=vs.141).aspx) widely, to parallelize video capture, tracking, and Unity rendering. The dependency between each module is loosened. HoloLensARToolKit v0.2 is able to achieve: **rendering at 45-60 fps, video capture at 30 fps, and tracking at 25-30 fps** performance. The newly added branch: [feature-grayscale](https://github.com/qian256/HoloLensARToolKit/tree/feature-grayscale) further improves the performance.
 
 In addition, matrix code mismatch issue is fixed, and coordinate system representation is more consistent. 
 
@@ -44,8 +44,8 @@ The following example videos are taken with HoloLensARToolKit **[v0.1](https://g
 1. Make sure you have [HoloLens development tools](https://developer.microsoft.com/en-us/windows/mixed-reality/install_the_tools) installed.
 	* HoloLens Emulator and Vuforia are not required.
 	* Visual Studio 2017 is preferred.
-2. Launch [Unity3D](https://unity3d.com/), open project folder ```HoloLensARSample```.
-3. Import ```ARToolKitUWP.unitypackage``` and then open one of the sample scenes
+2. Launch [Unity3D](https://unity3d.com/), import ```ARToolKitUWP.unitypackage``` open project folder ```HoloLensARSample```.
+3. and then open one of the sample scenes
 	* ```Assets/Sample/HoloLensARToolKitSingle.unity```
 	* ```Assets/Sample/HoloLensARToolKitCube.unity```
 	* ```Assets/Sample/HoloLensARToolKitMulti.unity```
