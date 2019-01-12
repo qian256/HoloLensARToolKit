@@ -42,6 +42,10 @@ using System.Threading;
 using System.Linq;
 using Windows.Perception.Spatial;
 using UnityEngine.XR.WSA;
+
+using Windows.Graphics.DirectX.Direct3D11;
+using Windows.Graphics;
+
 #endif
 
 /// <summary>
@@ -129,12 +133,6 @@ public class ARUWPVideo : MonoBehaviour {
     }
 
     /// <summary>
-    /// Temporary SoftwareBitmap used for data exchange between Unity UI thread (Update 
-    /// function) and the video thread (OnFrameArrived function). [internal use]
-    /// </summary>
-    private SoftwareBitmap _bitmap = null;
-
-    /// <summary>
     /// Temporary UnityEngine.Matrix4x4 used for exchanging camera view matrix between threads. [internal use]
     /// </summary>
     private float[] _cameraToWorldMatrix;
@@ -149,11 +147,6 @@ public class ARUWPVideo : MonoBehaviour {
     /// Signal indicating that the initialization of video loop is done. [internal use]
     /// </summary>
     private bool signalInitDone = false;
-
-    /// <summary>
-    /// The SoftwareBitmap used for Unity UI thread for video previewing. [internal use]
-    /// </summary>
-    private SoftwareBitmap updateBitmap = null;
 
     /// <summary>
     /// The view matrix used for Unity UI thread for updating the parent object for tracked objects. [internal use]
@@ -171,11 +164,6 @@ public class ARUWPVideo : MonoBehaviour {
     private MediaFrameReader frameReader = null;
 
     /// <summary>
-    /// Size of the video buffer used to create Unity texture object. [internal use]
-    /// </summary>
-    private int videoBufferSize = 0;
-
-    /// <summary>
     /// Average video frame period in millisecond for previous 50 frames, calculated when 
     /// necessary. [internal use]
     /// </summary>
@@ -188,6 +176,11 @@ public class ARUWPVideo : MonoBehaviour {
     public float GetVideoFPS() {
         return 1000.0f / videoDeltaTime;
     }
+
+    /// <summary>
+    /// The byte buffer of current frame image. [internal use]
+    /// </summary>
+    private byte[] frameData = null;
 
     /// <summary>
     /// The Task to asynchronously initialize MediaCapture in UWP. The camera of HoloLens will
@@ -302,7 +295,8 @@ public class ARUWPVideo : MonoBehaviour {
             frameReader.FrameArrived += OnFrameArrived;
             controller.frameWidth = Convert.ToInt32(targetResFormat.VideoFormat.Width);
             controller.frameHeight = Convert.ToInt32(targetResFormat.VideoFormat.Height);
-            videoBufferSize = controller.frameWidth * controller.frameHeight * 4;
+            // Feature grayscale branch
+            frameData = new byte[controller.frameWidth * controller.frameHeight];
             Debug.Log(TAG + ": FrameReader is successfully initialized, " + controller.frameWidth + "x" + controller.frameHeight +
                 ", Framerate: " + targetResFormat.FrameRate.Numerator + "/" + targetResFormat.FrameRate.Denominator);
         }
@@ -544,6 +538,7 @@ public class ARUWPVideo : MonoBehaviour {
 
         return m;
     }
+    
 
     /// <summary>
     /// The callback that is triggered when new video preview frame arrives. In this function,
@@ -552,29 +547,29 @@ public class ARUWPVideo : MonoBehaviour {
     /// </summary>
     /// <param name="sender">MediaFrameReader object</param>
     /// <param name="args">arguments not used here</param>
-    private void OnFrameArrived(MediaFrameReader sender, MediaFrameArrivedEventArgs args) {
+    unsafe private void OnFrameArrived(MediaFrameReader sender, MediaFrameArrivedEventArgs args) {
         ARUWPUtils.VideoTick();
         using (var frame = sender.TryAcquireLatestFrame()) {
             if (frame != null) {
 
                 float[] cameraToWorldMatrixAsFloat;
-                if (TryGetCameraToWorldMatrix(frame, out cameraToWorldMatrixAsFloat) == false)
-                {
+                if (TryGetCameraToWorldMatrix(frame, out cameraToWorldMatrixAsFloat) == false) {
                     return;
                 }
 
                 Interlocked.Exchange(ref _cameraToWorldMatrix, cameraToWorldMatrixAsFloat);
-
+                
                 var originalSoftwareBitmap = frame.VideoMediaFrame.SoftwareBitmap;
-                var softwareBitmap = SoftwareBitmap.Convert(originalSoftwareBitmap, BitmapPixelFormat.Rgba8, BitmapAlphaMode.Ignore);
+                using (var input = originalSoftwareBitmap.LockBuffer(BitmapBufferAccessMode.Read))
+                using (var inputReference = input.CreateReference()) {
+                    byte* inputBytes;
+                    uint inputCapacity;
+                    ((IMemoryBufferByteAccess)inputReference).GetBuffer(out inputBytes, out inputCapacity);
+                    Marshal.Copy((IntPtr)inputBytes, frameData, 0, frameData.Length);
+                }
+                // Process the frame in this thread (still different from Unity thread)
+                controller.ProcessFrameSync(frameData);
                 originalSoftwareBitmap?.Dispose();
-                if (videoPreview) {
-                    Interlocked.Exchange(ref _bitmap, softwareBitmap);
-                    controller.ProcessFrameAsync(SoftwareBitmap.Copy(softwareBitmap));
-                }
-                else {
-                    controller.ProcessFrameAsync(softwareBitmap);
-                }
                 signalTrackingUpdated = true;
             }
         }
@@ -625,22 +620,6 @@ public class ARUWPVideo : MonoBehaviour {
         locatableCameraTransform.rotation = rotation;
     }
 
-    /// <summary>
-    /// Update the video preview texture. It is an unsafe function since unsafe interface is
-    /// used. Here the memory exchange between video thread and Unity UI thread happens, and
-    /// refresh Unity Texture object based on video SoftwareBitmap. [internal use]
-    /// </summary>
-    private unsafe void UpdateVideoPreview() {
-        Interlocked.Exchange(ref updateBitmap, _bitmap);
-        using (var input = updateBitmap.LockBuffer(BitmapBufferAccessMode.Read))
-        using (var inputReference = input.CreateReference()) {
-            byte* inputBytes;
-            uint inputCapacity;
-            ((IMemoryBufferByteAccess)inputReference).GetBuffer(out inputBytes, out inputCapacity);
-            mediaTexture.LoadRawTextureData((IntPtr)inputBytes, videoBufferSize);
-            mediaTexture.Apply();
-        }
-    }
 
     /// <summary>
     /// Unity Monobehavior function: update texture depending on whether new frame arrives,
@@ -651,20 +630,22 @@ public class ARUWPVideo : MonoBehaviour {
 
         if (signalInitDone) {
             if (mediaMaterial != null) {
-                mediaTexture = new Texture2D(controller.frameWidth, controller.frameHeight, TextureFormat.RGBA32, false);
+                // Feature grayscale branch
+                mediaTexture = new Texture2D(controller.frameWidth, controller.frameHeight, TextureFormat.Alpha8, false);
                 mediaMaterial.mainTexture = mediaTexture;
             }
             signalInitDone = false;
         }
 
-        if (signalTrackingUpdated)
-        {
+        if (signalTrackingUpdated) {
             UpdateCameraParentPose();
 
-
-            if (videoPreview && previewPlane != null && mediaMaterial != null)
-            {
-                UpdateVideoPreview();
+            if (videoPreview && previewPlane != null && mediaMaterial != null) {
+                // Feature grayscale branch
+                if (frameData != null) {
+                    mediaTexture.LoadRawTextureData(frameData);
+                    mediaTexture.Apply();
+                }
             }
         }
 

@@ -1,62 +1,21 @@
-HoloLens with ARToolKit v0.2
+HoloLens with ARToolKit v0.2 (Feature Grayscale)
 ===
 Author: [Long Qian](http://longqian.me/aboutme)
 
 Date: 2019-01-11
 
 ## Overview
-**HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) (v5.3.2) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us), or generally UWP (Universal Windows Platform). With fiducial marker tracking provided by ARToolKit, plus the indoor localization of HoloLens, many Augmented Reality applications would be made possible.
 
-This repository contains:
-- `ARToolKitUWP/`: Wrapper of [ARToolKit5](https://github.com/artoolkit/artoolkit5) for UWP
-- `ARToolKitUWP-Unity/` or `ARToolKitUWP.unitypackage`: Unity package to interface the native library
-- `HoloLensARSample/`: Some sample Unity scenes to demo the use of them
-- `HoloLensCamCalib/`: Link to camera calibration of HoloLens
+This **feature-grayscale** branch significantly improves the system performance. With this feature, tracking with ```1344x756x30fps``` video is able to maintain constantly 30 FPS, and rendering constantly at 60 FPS. Lower latency is achieved.
 
-## What's new in v0.2?
+For general overview of **HoloLensARToolKit**, please refer to the [README](https://github.com/qian256/HoloLensARToolKit/blob/master/README.md) of master branch.
 
-HoloLensARToolKit v0.2 involves a re-write of video pipeline, taking advantage of [Windows.Media.Capture APIs](https://docs.microsoft.com/en-us/uwp/api/windows.media.capture). Compared to [v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1) where the frame data is achieved via Unity WebcamTexture, Windows UWP APIs provide direct access to video control.
+## Differences
 
-The current implementation uses .NET [Task-based Asynchronous Pattern](https://msdn.microsoft.com/en-us/library/hh873177(v=vs.141).aspx) widely, to parallelize video capture, tracking, and Unity rendering. The dependency between each module is loosened. HoloLensARToolKit v0.2 is able to achieve: **rendering at 45-60 fps, video capture at 30 fps, and tracking at 25-30 fps** performance.
+- Grayscale image is provided to ARToolKit instead of RGBA image.
+- With a new incoming video frame of NV12 format, the preceding ```width * height``` bytes are directly copied to a byte buffer, which is used for tracking and preview. These bytes are illuminance plane of NV12 image. Please refer to [Windows YUV Formats](https://docs.microsoft.com/en-us/windows/desktop/medfound/recommended-8-bit-yuv-formats-for-video-rendering#420-formats-12-bits-per-pixel) for more information. Multiple copies of SoftwareBitmap are avoided. 
+- As a result, the preview image is also only grayscale. A custom Unity shader is provided to handle single-channel grayscale image. 
 
-In addition, matrix code mismatch issue is fixed, and coordinate system representation is more consistent. 
-
-Credit to [Daniel Anderson](https://github.com/DanAndersen): IL2CPP scripting backend is now supported. HoloLens locatable camera pose is integrated to make the tracking more stable.
-
-
-## Example
-
-The following example videos are taken with HoloLensARToolKit **[v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1)**.
-
-<table border=0>
-<tr>
-	<td align="center" width="50%"><img src="http://longqian.me/public/image/artoolkit-hololens-minion-thumb.png" /></td>
-	<td align="center" width="50%"><img src="http://longqian.me/public/image/artoolkit-hololens-samples-thumb.png" /></td>
-</tr>
-<tr>
-	<td align="center">Minion on the Cube (<a href="https://youtu.be/cMzNyJkr3X0"><b>Youtube Video</b></a>)</td>
-	<td align="center">HoloLensARToolKit Samples (<a href="https://youtu.be/PqT90QfgP-U"><b>Youtube Video</b></a>)</td>
-</tr>
-</table>
-
-## Run the sample
-
-1. Make sure you have [HoloLens development tools](https://developer.microsoft.com/en-us/windows/mixed-reality/install_the_tools) installed.
-	* HoloLens Emulator and Vuforia are not required.
-	* Visual Studio 2017 is preferred.
-2. Launch [Unity3D](https://unity3d.com/), open project folder ```HoloLensARSample```.
-3. Import ```ARToolKitUWP.unitypackage``` and then open one of the sample scenes
-	* ```Assets/Sample/HoloLensARToolKitSingle.unity```
-	* ```Assets/Sample/HoloLensARToolKitCube.unity```
-	* ```Assets/Sample/HoloLensARToolKitMulti.unity```
-	* ```Assets/Sample/HoloLensARToolKitCoords.unity```
-4. Configure the Unity player settings to build Visual Studio 2017 solution.
-5. Use Visual Studio to build and deploy application to HoloLens.
-6. Prepare the correspondent printed marker of ARToolKit.
-	* Marker images are [Here](https://github.com/artoolkit/artoolkit5/tree/master/doc/patterns).
-	* Make sure the printed marker size is same as configured in Unity.
-7. Move the marker around and see the effect.
-	* **HoloLens clicker** or **air tap** is able to disable and enable video preview. Disabled preview accelerates the rendering.
 
 ## Compatibility Tested
 
@@ -64,14 +23,6 @@ The following example videos are taken with HoloLensARToolKit **[v0.1](https://g
 2. Visual Studio 2017 (Toolset v141)
 3. ARToolKit 5.3.2
 4. Windows 10 SDK 10.0.10240.0 to 10.0.17134.0
-
-## Understand HoloLensARToolKit v0.2
-- [Overview: ARToolKit on HoloLens](http://longqian.me/2017/01/20/artoolkit-on-hololens/)
-- [Unity native programming](http://longqian.me/2017/01/29/unity-native-programming/)
-- [ARUWPController options v0.2](http://longqian.me/2017/05/15/hololens-artoolkit-controller-v02/)
-- [ARUWPMarker options v0.2](http://longqian.me/2017/05/15/hololens-artoolkit-marker-v02/)
-- [ARUWPVideo options v0.2](http://longqian.me/2017/05/15/hololens-artoolkit-video-v02/)
-- [Coordinate systems in HoloLensARToolKit v0.2](http://longqian.me/2017/05/15/hololens-artoolkit-coordinates-v02/)
 
 
 ---

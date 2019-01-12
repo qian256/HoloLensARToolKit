@@ -82,9 +82,12 @@ public class ARUWPControllerEditor : Editor {
 
         EditorGUILayout.PropertyField(patternDetectionMode_Prop, new GUIContent("Pattern Detection Mode"));
         int patternDetectionMode = patternDetectionMode_Prop.enumValueIndex;
-        if (patternDetectionMode == ARUWP.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX ||
-            patternDetectionMode == ARUWP.AR_TEMPLATE_MATCHING_MONO_AND_MATRIX ||
-            patternDetectionMode == ARUWP.AR_MATRIX_CODE_DETECTION) {
+        // Feature grayscale branch
+        //if (patternDetectionMode == ARUWP.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX ||
+        //    patternDetectionMode == ARUWP.AR_TEMPLATE_MATCHING_MONO_AND_MATRIX ||
+        //    patternDetectionMode == ARUWP.AR_MATRIX_CODE_DETECTION) {
+        // Because the removed enum break the index and value
+        if (patternDetectionMode == 1 || patternDetectionMode == 2) {
             EditorGUILayout.PropertyField(matrixCodeType_Prop, new GUIContent("Matrix Code Type"));
         }
 

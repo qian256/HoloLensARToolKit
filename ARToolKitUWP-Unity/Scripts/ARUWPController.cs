@@ -176,10 +176,12 @@ public class ARUWPController : MonoBehaviour {
     /// PatternDetectionMode types, same definition as ARToolKit. [public use]
     /// </summary>
     public enum PatternDetectionMode {
-        AR_TEMPLATE_MATCHING_COLOR = ARUWP.AR_TEMPLATE_MATCHING_COLOR,
+        // Feature grayscale branch
+        //AR_TEMPLATE_MATCHING_COLOR = ARUWP.AR_TEMPLATE_MATCHING_COLOR,
         AR_TEMPLATE_MATCHING_MONO = ARUWP.AR_TEMPLATE_MATCHING_MONO,
         AR_MATRIX_CODE_DETECTION = ARUWP.AR_MATRIX_CODE_DETECTION,
-        AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX = ARUWP.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX,
+        // Feature grayscale branch
+        //AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX = ARUWP.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX,
         AR_TEMPLATE_MATCHING_MONO_AND_MATRIX = ARUWP.AR_TEMPLATE_MATCHING_MONO_AND_MATRIX
     }
 
@@ -232,7 +234,7 @@ public class ARUWPController : MonoBehaviour {
     /// Initial value of PatternDetectionMode. At runtime, please use SetPatternDetectionMode() to
     /// modify the value. [public use] [initialization only]
     /// </summary>
-    public PatternDetectionMode patternDetectionMode = PatternDetectionMode.AR_TEMPLATE_MATCHING_COLOR;
+    public PatternDetectionMode patternDetectionMode = PatternDetectionMode.AR_TEMPLATE_MATCHING_MONO;
 
     /// <summary>
     /// Initial value of MatrixCodeType. At runtime, please use SetMatrixCodeType() to modify the
@@ -282,11 +284,6 @@ public class ARUWPController : MonoBehaviour {
     public Text renderFPS = null;
 
     /// <summary>
-    /// The byte buffer of current frame image. [internal use]
-    /// </summary>
-    private byte[] frameData = null;
-
-    /// <summary>
     /// Signal to indicate that the tracking information was updated within the previous render frame.
     /// [internal use]
     /// </summary>
@@ -309,6 +306,12 @@ public class ARUWPController : MonoBehaviour {
     /// necessary. [internal use]
     /// </summary>
     private float trackDeltaTime = 0.0f;
+
+
+    /// <summary>
+    /// Whether the native code is currently being used for tracking of a frame. [internal use]
+    /// </summary>
+    private bool isDetecting = false;
 
 
     /// <summary>
@@ -362,7 +365,8 @@ public class ARUWPController : MonoBehaviour {
         ARUWP.aruwpRegisterLogCallbackWrapper(ARUWP.Log);
         ARUWP.aruwpSetLogLevel((int)(AR_LOG_LEVEL.AR_LOG_LEVEL_INFO));
         
-        var ret = ARUWP.aruwpInitialiseAR(frameWidth, frameHeight, ARUWP.AR_PIXEL_FORMAT_RGBA);
+        // Feature grayscale branch
+        var ret = ARUWP.aruwpInitialiseAR(frameWidth, frameHeight, ARUWP.AR_PIXEL_FORMAT_MONO);
         if (!ret) {
             Debug.Log(TAG + ": aruwpInitialiseAR() failed");
             return false;
@@ -441,7 +445,6 @@ public class ARUWPController : MonoBehaviour {
             Debug.Log(TAG + ": Init() fails");
             return;
         }
-        frameData = new byte[frameHeight * frameWidth * 4];
         ret = await InitializeControllerAsyncTask();
         if (!ret) {
             Debug.Log(TAG + ": Init() fails");
@@ -560,58 +563,22 @@ public class ARUWPController : MonoBehaviour {
 
 
     /// <summary>
-    /// Actual calls to tracking and update tracking result are here. This function is heavy, and
-    /// will be wrapped up in a task so that it can be executed asynchronously with video pipeline
-    /// and Unity UI thread. [internal use]
+    /// The function being called by ARUWPVideo OnFrameArrived. The execution is on the same
+    /// thread as OnFrameArrived, which is different from Unity thread [internal use]
     /// </summary>
-    /// <param name="softwareBitmap">The input from video pipeline, the current image frame</param>
-    private unsafe void ProcessFrameAsyncTaskFunc(SoftwareBitmap softwareBitmap) {
+    /// <param name="frameData">The bytearray for frameData in grayscale</param>
+    public void ProcessFrameSync(byte[] frameData) {
         if (status == ARUWP.ARUWP_STATUS_RUNNING) {
-            using (var input = softwareBitmap.LockBuffer(BitmapBufferAccessMode.ReadWrite))
-            using (var inputReference = input.CreateReference()) {
-                byte* inputBytes;
-                uint inputCapacity;
-                ((IMemoryBufferByteAccess)inputReference).GetBuffer(out inputBytes, out inputCapacity);
-
-                Marshal.Copy((IntPtr)inputBytes, frameData, 0, frameData.Length);
-
+            if (!isDetecting) {
+                isDetecting = true;
                 IntPtr p = GetImageHandle(frameData);
                 Detect(p);
                 DetectDone();
             }
+            isDetecting = false;
         }
     }
 
-    /// <summary>
-    /// The handle to the asynchronous task of doing marker tracking in the current frame. The idea
-    /// is to check if there is already a processing task running, and prevent several processing
-    /// tasks to run at the sametime. [internal use]
-    /// </summary>
-    private Task processFrameTask = null;
-
-    /// <summary>
-    /// The task wrapper of heavy function ProcessFrameAsyncTaskFunc(). It returns and reset the task
-    /// handle of processFrameTask. [internal use]
-    /// </summary>
-    /// <param name="softwareBitmap">The input from video pipeline, the current image frame</param>
-    /// <returns></returns>
-    private Task ProcessFrameAsyncTask(SoftwareBitmap softwareBitmap) {
-        processFrameTask = Task.Run(() => ProcessFrameAsyncTaskFunc(softwareBitmap));
-        return processFrameTask;
-    }
-
-    /// <summary>
-    /// The asynchronous function to execute the wrapped task of tracking. It will omit the current 
-    /// frame if the processing of previous frame is not yet finished. [internal use]
-    /// </summary>
-    /// <param name="softwareBitmap">The input from video pipeline, the current image frame</param>
-    public async void ProcessFrameAsync(SoftwareBitmap softwareBitmap) {
-        if (processFrameTask != null && !processFrameTask.IsCompleted) {
-            // Debug.Log(TAG + ": processFrameTask not completed yet");
-            return;
-        }
-        await ProcessFrameAsyncTask(softwareBitmap);
-    }
 
     /// <summary>
     /// The actual detection function, wrapping up a call to native ARToolKitUWP.dll library.

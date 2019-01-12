@@ -449,6 +449,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1893493650801832, guid: 4f9773d28cde78241a6410d907107d8e, type: 3}
+      propertyPath: m_Name
+      value: Main Camera
+      objectReference: {fileID: 0}
     - target: {fileID: 4357536379254462, guid: 4f9773d28cde78241a6410d907107d8e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -481,25 +485,19 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 5
       objectReference: {fileID: 0}
-    - target: {fileID: 124269124946475564, guid: 4f9773d28cde78241a6410d907107d8e,
-        type: 3}
-      propertyPath: m_Enabled
+    - target: {fileID: 4357536379254462, guid: 4f9773d28cde78241a6410d907107d8e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 92171470633799938, guid: 4f9773d28cde78241a6410d907107d8e,
-        type: 3}
-      propertyPath: m_Enabled
+    - target: {fileID: 4357536379254462, guid: 4f9773d28cde78241a6410d907107d8e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 81531686066663774, guid: 4f9773d28cde78241a6410d907107d8e,
-        type: 3}
-      propertyPath: m_Enabled
+    - target: {fileID: 4357536379254462, guid: 4f9773d28cde78241a6410d907107d8e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 124269124946475564, guid: 4f9773d28cde78241a6410d907107d8e, type: 3}
-    - {fileID: 92171470633799938, guid: 4f9773d28cde78241a6410d907107d8e, type: 3}
-    - {fileID: 81531686066663774, guid: 4f9773d28cde78241a6410d907107d8e, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4f9773d28cde78241a6410d907107d8e, type: 3}
 --- !u!1 &1400662950 stripped
 GameObject:
@@ -691,7 +689,7 @@ MonoBehaviour:
   videoPreview: 1
   previewPlane: {fileID: 1400662950}
   videoFPS: {fileID: 51332299}
-  videoParameter: 0
+  videoParameter: 4
 --- !u!114 &1888954599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -708,7 +706,7 @@ MonoBehaviour:
   frameWidth: 0
   frameHeight: 0
   useCameraParamFile: 1
-  cameraParam: hololens896x504.dat
+  cameraParam: hololens1344x756.dat
   threshold: 100
   borderSize: 0.25
   thresholdMode: 0
