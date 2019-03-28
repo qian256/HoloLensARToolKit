@@ -140,16 +140,7 @@ public class ARUWPController : MonoBehaviour {
     /// </summary>
     [Range(0f, 0.5f)]
     public float borderSize = 0.25f;
-
-    /// <summary>
-    /// GameObject that represents the location of the locatable camera. Whenever we get a new
-    /// frame, we update the pose of this GameObject so that it is at the position of where the
-    /// locatable camera was during that frame. Note that this is not the same as the "holoLensCamera"
-    /// object -- the "Main Camera" of the scene is a virtual location defined by the HoloLens IMU,
-    /// not by the HoloLens locatable camera. [internal use]
-    /// </summary>
-    public GameObject LocatableCameraRoot { get; private set; }
-
+    
 
     #region Public Enums
 
@@ -455,14 +446,6 @@ public class ARUWPController : MonoBehaviour {
 
 
     /// <summary>
-    /// Unity Monobehavior function. Initialize the locatable camera root before
-    /// ARUWPMarker.Start() reference this object. [internal use]
-    /// </summary>
-    private void OnEnable() {
-        LocatableCameraRoot = new GameObject("Locatable Camera Root");
-    }
-
-    /// <summary>
     /// Unity Monobehavior function. ARUWPVideo is set here. Target the render frame rate to 60.
     /// Create unaddedMarkers list, preparing the initialization. [internal use]
     /// </summary>
@@ -567,13 +550,14 @@ public class ARUWPController : MonoBehaviour {
     /// thread as OnFrameArrived, which is different from Unity thread [internal use]
     /// </summary>
     /// <param name="frameData">The bytearray for frameData in grayscale</param>
-    public void ProcessFrameSync(byte[] frameData) {
+    /// <param name="locatableCameraToWorld">The locatable camera transformantion at capture time</param>
+    public void ProcessFrameSync(byte[] frameData, Matrix4x4 locatableCameraToWorld) {
         if (status == ARUWP.ARUWP_STATUS_RUNNING) {
             if (!isDetecting) {
                 isDetecting = true;
                 IntPtr p = GetImageHandle(frameData);
                 Detect(p);
-                DetectDone();
+                DetectDone(locatableCameraToWorld);
             }
             isDetecting = false;
         }
@@ -593,9 +577,10 @@ public class ARUWPController : MonoBehaviour {
     /// DetectDone function executes when the detection finishes, to update the information of all 
     /// the markers in the scene. [internal use]
     /// </summary>
-    private void DetectDone() {
+    /// <param name="locatableCameraToWorld">The locatable camera transformantion at capture time</param>
+    private void DetectDone(Matrix4x4 locatableCameraToWorld) {
         foreach (var key in markers.Keys) {
-            markers[key].UpdateTrackingInfo();
+            markers[key].UpdateTrackingInfo(locatableCameraToWorld);
         }
         signalTrackingUpdated = true;
         ARUWPUtils.TrackTick();

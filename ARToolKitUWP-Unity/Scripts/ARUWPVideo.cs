@@ -521,15 +521,15 @@ public class ARUWPVideo : MonoBehaviour {
         UnityEngine.Matrix4x4 m = new UnityEngine.Matrix4x4();
         m.m00 = matrixAsArray[0];
         m.m01 = matrixAsArray[1];
-        m.m02 = matrixAsArray[2];
+        m.m02 = -matrixAsArray[2];
         m.m03 = matrixAsArray[3];
         m.m10 = matrixAsArray[4];
         m.m11 = matrixAsArray[5];
-        m.m12 = matrixAsArray[6];
+        m.m12 = -matrixAsArray[6];
         m.m13 = matrixAsArray[7];
         m.m20 = matrixAsArray[8];
         m.m21 = matrixAsArray[9];
-        m.m22 = matrixAsArray[10];
+        m.m22 = -matrixAsArray[10];
         m.m23 = matrixAsArray[11];
         m.m30 = matrixAsArray[12];
         m.m31 = matrixAsArray[13];
@@ -557,8 +557,8 @@ public class ARUWPVideo : MonoBehaviour {
                     return;
                 }
 
-                Interlocked.Exchange(ref _cameraToWorldMatrix, cameraToWorldMatrixAsFloat);
-                
+                Matrix4x4 latestLocatableCameraToWorld = ConvertFloatArrayToMatrix4x4(cameraToWorldMatrixAsFloat);
+
                 var originalSoftwareBitmap = frame.VideoMediaFrame.SoftwareBitmap;
                 using (var input = originalSoftwareBitmap.LockBuffer(BitmapBufferAccessMode.Read))
                 using (var inputReference = input.CreateReference()) {
@@ -568,7 +568,7 @@ public class ARUWPVideo : MonoBehaviour {
                     Marshal.Copy((IntPtr)inputBytes, frameData, 0, frameData.Length);
                 }
                 // Process the frame in this thread (still different from Unity thread)
-                controller.ProcessFrameSync(frameData);
+                controller.ProcessFrameSync(frameData, latestLocatableCameraToWorld);
                 originalSoftwareBitmap?.Dispose();
                 signalTrackingUpdated = true;
             }
@@ -603,23 +603,6 @@ public class ARUWPVideo : MonoBehaviour {
         }
     }
 
-    private void UpdateCameraParentPose()
-    {
-        Interlocked.Exchange(ref updateCameraToWorldMatrix, _cameraToWorldMatrix);
-
-        UnityEngine.Matrix4x4 cameraToWorldMatrix = ConvertFloatArrayToMatrix4x4(updateCameraToWorldMatrix);
-
-        Transform locatableCameraTransform = controller.LocatableCameraRoot.transform;
-
-        // Note: we can't just directly convert the matrix into the rotation/position that Unity expects.
-        // We need to convert it. See https://forum.unity.com/threads/locatable-camera-in-unity.398803/
-        Vector3 position = cameraToWorldMatrix.MultiplyPoint(Vector3.zero);
-        Quaternion rotation = Quaternion.LookRotation(-cameraToWorldMatrix.GetColumn(2), cameraToWorldMatrix.GetColumn(1));
-
-        locatableCameraTransform.position = position;
-        locatableCameraTransform.rotation = rotation;
-    }
-
 
     /// <summary>
     /// Unity Monobehavior function: update texture depending on whether new frame arrives,
@@ -638,7 +621,6 @@ public class ARUWPVideo : MonoBehaviour {
         }
 
         if (signalTrackingUpdated) {
-            UpdateCameraParentPose();
 
             if (videoPreview && previewPlane != null && mediaMaterial != null) {
                 // Feature grayscale branch
