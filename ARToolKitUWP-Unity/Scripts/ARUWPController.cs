@@ -141,15 +141,6 @@ public class ARUWPController : MonoBehaviour {
     [Range(0f, 0.5f)]
     public float borderSize = 0.25f;
 
-    /// <summary>
-    /// GameObject that represents the location of the locatable camera. Whenever we get a new
-    /// frame, we update the pose of this GameObject so that it is at the position of where the
-    /// locatable camera was during that frame. Note that this is not the same as the "holoLensCamera"
-    /// object -- the "Main Camera" of the scene is a virtual location defined by the HoloLens IMU,
-    /// not by the HoloLens locatable camera. [internal use]
-    /// </summary>
-    public GameObject LocatableCameraRoot { get; private set; }
-
 
     #region Public Enums
 
@@ -450,15 +441,7 @@ public class ARUWPController : MonoBehaviour {
         StartFrameReaderAsync();
     }
 
-
-    /// <summary>
-    /// Unity Monobehavior function. Initialize the locatable camera root before
-    /// ARUWPMarker.Start() reference this object. [internal use]
-    /// </summary>
-    private void OnEnable() {
-        LocatableCameraRoot = new GameObject("Locatable Camera Root");
-    }
-
+    
     /// <summary>
     /// Unity Monobehavior function. ARUWPVideo is set here. Target the render frame rate to 60.
     /// Create unaddedMarkers list, preparing the initialization. [internal use]
@@ -565,7 +548,8 @@ public class ARUWPController : MonoBehaviour {
     /// and Unity UI thread. [internal use]
     /// </summary>
     /// <param name="softwareBitmap">The input from video pipeline, the current image frame</param>
-    private unsafe void ProcessFrameAsyncTaskFunc(SoftwareBitmap softwareBitmap) {
+    /// <param name="locatableCameraToWorld">The locatable camera transformantion at capture time</param>
+    private unsafe void ProcessFrameAsyncTaskFunc(SoftwareBitmap softwareBitmap, Matrix4x4 locatableCameraToWorld) {
         if (status == ARUWP.ARUWP_STATUS_RUNNING) {
             using (var input = softwareBitmap.LockBuffer(BitmapBufferAccessMode.ReadWrite))
             using (var inputReference = input.CreateReference()) {
@@ -577,7 +561,7 @@ public class ARUWPController : MonoBehaviour {
 
                 IntPtr p = GetImageHandle(frameData);
                 Detect(p);
-                DetectDone();
+                DetectDone(locatableCameraToWorld);
             }
         }
     }
@@ -594,9 +578,10 @@ public class ARUWPController : MonoBehaviour {
     /// handle of processFrameTask. [internal use]
     /// </summary>
     /// <param name="softwareBitmap">The input from video pipeline, the current image frame</param>
+    /// <param name="locatableCameraToWorld">The locatable camera transformantion at capture time</param>
     /// <returns></returns>
-    private Task ProcessFrameAsyncTask(SoftwareBitmap softwareBitmap) {
-        processFrameTask = Task.Run(() => ProcessFrameAsyncTaskFunc(softwareBitmap));
+    private Task ProcessFrameAsyncTask(SoftwareBitmap softwareBitmap, Matrix4x4 locatableCameraToWorld) {
+        processFrameTask = Task.Run(() => ProcessFrameAsyncTaskFunc(softwareBitmap, locatableCameraToWorld));
         return processFrameTask;
     }
 
@@ -605,12 +590,13 @@ public class ARUWPController : MonoBehaviour {
     /// frame if the processing of previous frame is not yet finished. [internal use]
     /// </summary>
     /// <param name="softwareBitmap">The input from video pipeline, the current image frame</param>
-    public async void ProcessFrameAsync(SoftwareBitmap softwareBitmap) {
+    /// <param name="locatableCameraToWorld">The locatable camera transformantion at capture time</param>
+    public async void ProcessFrameAsync(SoftwareBitmap softwareBitmap, Matrix4x4 locatableCameraToWorld) {
         if (processFrameTask != null && !processFrameTask.IsCompleted) {
             // Debug.Log(TAG + ": processFrameTask not completed yet");
             return;
         }
-        await ProcessFrameAsyncTask(softwareBitmap);
+        await ProcessFrameAsyncTask(softwareBitmap, locatableCameraToWorld);
     }
 
     /// <summary>
@@ -626,9 +612,10 @@ public class ARUWPController : MonoBehaviour {
     /// DetectDone function executes when the detection finishes, to update the information of all 
     /// the markers in the scene. [internal use]
     /// </summary>
-    private void DetectDone() {
+    /// <param name="locatableCameraToWorld">The locatable camera transformantion at capture time</param>
+    private void DetectDone(Matrix4x4 locatableCameraToWorld) {
         foreach (var key in markers.Keys) {
-            markers[key].UpdateTrackingInfo();
+            markers[key].UpdateTrackingInfo(locatableCameraToWorld);
         }
         signalTrackingUpdated = true;
         ARUWPUtils.TrackTick();

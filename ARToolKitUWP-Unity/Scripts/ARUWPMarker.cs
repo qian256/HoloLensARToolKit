@@ -266,6 +266,10 @@ public class ARUWPMarker : MonoBehaviour{
         /// use latestTransMatrix and GetMarkerTransformationMatrix() instead.
         /// </summary>
         public float[] trans = new float[12];
+        /// <summary>
+        /// The locatable camera transformation when the image for tracking was captured
+        /// </summary>
+        public Matrix4x4 locatableCameraToWorld = Matrix4x4.identity;
     }
 
     /// <summary>
@@ -358,7 +362,7 @@ public class ARUWPMarker : MonoBehaviour{
             Debug.Log(TAG + ": not able to find ARUWPController");
             Application.Quit();
         }
-        holoLensCamera = GameObject.FindWithTag("MainCamera");
+        holoLensCamera = GameObject.Find("Main Camera");
         if (holoLensCamera == null) {
             Debug.Log(TAG + ": Main Camera does not exist in the scene");
             Application.Quit();
@@ -371,7 +375,7 @@ public class ARUWPMarker : MonoBehaviour{
             else {
                 // Create dummy object with unique object ID for different markers
                 dummyGameObject = new GameObject("Dummy" + GetInstanceID());
-                dummyGameObject.transform.SetParent(controller.LocatableCameraRoot.transform);
+                dummyGameObject.transform.SetParent(null);
             }
         }
         // magic function initialization
@@ -409,11 +413,11 @@ public class ARUWPMarker : MonoBehaviour{
                     {
                         if (applyRotation)
                         {
-                            dummyGameObject.transform.localRotation = ARUWPUtils.QuaternionFromMatrix(latestTransMatrix);
+                            dummyGameObject.transform.localRotation = ARUWPUtils.QuaternionFromMatrix(latestTrackingInfo.locatableCameraToWorld * latestTransMatrix);
                         }
                         if (applyTranslation)
                         {
-                            dummyGameObject.transform.localPosition = ARUWPUtils.PositionFromMatrix(latestTransMatrix);
+                            dummyGameObject.transform.localPosition = ARUWPUtils.PositionFromMatrix(latestTrackingInfo.locatableCameraToWorld * latestTransMatrix);
                         }
                         ARUWPUtils.SetMatrix4x4ToGameObject(ref target, dummyGameObject.transform.localToWorldMatrix);
                     }
@@ -430,13 +434,14 @@ public class ARUWPMarker : MonoBehaviour{
     /// <summary>
     /// Update tracking information, called by ARUWPController.cs. [internal use]
     /// </summary>
-    public void UpdateTrackingInfo() {
+    public void UpdateTrackingInfo(Matrix4x4 locatableCameraToWorld) {
         if (id != -1) {
             if (ARUWP.aruwpQueryMarkerTransformation(id, __info.trans)) {
                 if (type != MarkerType.multi) {
                     __info.confidence = ARUWP.aruwpGetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE);
                 }
                 __info.visible = true;
+                __info.locatableCameraToWorld = locatableCameraToWorld;
             }
             else {
                 __info.visible = false;
