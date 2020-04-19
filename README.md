@@ -1,30 +1,34 @@
-HoloLens with ARToolKit v0.2
+HoloLens with ARToolKit v0.3
 ===
 Author: [Long Qian](http://longqian.me/aboutme)
 
-Date: 2019-01-11
+Date: 2020-04-19
 
 ## Overview
 **HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) (v5.3.2) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us), or generally UWP (Universal Windows Platform). With fiducial marker tracking provided by ARToolKit, plus the indoor localization of HoloLens, many Augmented Reality applications would be made possible.
 
 This repository contains:
 - `ARToolKitUWP/`: Wrapper of [ARToolKit5](https://github.com/artoolkit/artoolkit5) for UWP
-- `ARToolKitUWP-Unity/` or `ARToolKitUWP.unitypackage`: Unity package to interface the native library
-- `HoloLensARSample/`: Some sample Unity scenes to demo the use of them
+- `HoloLensARToolKit/`: Unity project with sample scenes and full package to demo this project
 - `HoloLensCamCalib/`: Link to camera calibration of HoloLens
+- `Markers/`: ARToolKit markers used for the samples
+- `ARToolKitUWP.unitypackage`: Unity package with core libraries and scripts to interface the native library
+- `ARToolKitUWP-Sample.unitypackage`: Unity package with sample scenes
 
-## What's new in v0.2?
+## What's new in v0.3?
 
-HoloLensARToolKit v0.2 involves a re-write of video pipeline, taking advantage of [Windows.Media.Capture APIs](https://docs.microsoft.com/en-us/uwp/api/windows.media.capture). Compared to [v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1) where the frame data is achieved via Unity WebcamTexture, Windows UWP APIs provide direct access to video control.
+* HoloLensARToolKit v0.3 starts to support **HoloLens 2**, meaning that the core library ```ARToolKitUWP.dll``` for **ARM64** is available, in addition to **x86** for HoloLens 1. The video pipeline for HoloLens 2 is integrated into the Unity project API, currently supporting video configuration **1504x846** at 30Hz and **60Hz**! Sample camera calibration file for HoloLens 2 is provided.
 
-The current implementation uses .NET [Task-based Asynchronous Pattern](https://msdn.microsoft.com/en-us/library/hh873177(v=vs.141).aspx) widely, to parallelize video capture, tracking, and Unity rendering. The dependency between each module is loosened. HoloLensARToolKit v0.2 is able to achieve: **rendering at 45-60 fps, video capture at 30 fps, and tracking at 25-30 fps** performance. The newly added branch: [feature-grayscale](https://github.com/qian256/HoloLensARToolKit/tree/feature-grayscale) further improves the performance.
+* Grayscale video parsing, previously implemented in [feature-grayscale](https://github.com/qian256/HoloLensARToolKit/tree/feature-grayscale) branch is now forced in v0.3. It significantly reduce CPU memory copy, and therefore improves tracking throughput.
 
-In addition, matrix code mismatch issue is fixed, and coordinate system representation is more consistent. 
+* A new script ```ARUWPTarget.cs``` is added, which should be attached to root of virtual content registered with each marker. It also supports 6-DOF **smoothing**, preventing sudden jump due to tracking errors. 
 
-Credit to [Daniel Anderson](https://github.com/DanAndersen): IL2CPP scripting backend is now supported. HoloLens locatable camera pose is integrated to make the tracking more stable.
+* A calibration matrix, ```ARUWPMarker::calibrationMatrix```, allows users to offset the virtual rendering in 6-DOF, replacing the magic functions in older versions. 
+
+* **IL2CPP** becomes the default scripting backend.
 
 
-## Example
+## Examples from v0.1
 
 The following example videos are taken with HoloLensARToolKit **[v0.1](https://github.com/qian256/HoloLensARToolKit/releases/tag/v0.1)**.
 
@@ -39,33 +43,18 @@ The following example videos are taken with HoloLensARToolKit **[v0.1](https://g
 </tr>
 </table>
 
-## Run the sample
 
-1. Make sure you have [HoloLens development tools](https://developer.microsoft.com/en-us/windows/mixed-reality/install_the_tools) installed.
-	* HoloLens Emulator and Vuforia are not required.
-	* Visual Studio 2017 is preferred.
-2. Launch [Unity3D](https://unity3d.com/), import ```ARToolKitUWP.unitypackage``` open project folder ```HoloLensARSample```.
-3. and then open one of the sample scenes
-	* ```Assets/Sample/HoloLensARToolKitSingle.unity```
-	* ```Assets/Sample/HoloLensARToolKitCube.unity```
-	* ```Assets/Sample/HoloLensARToolKitMulti.unity```
-	* ```Assets/Sample/HoloLensARToolKitCoords.unity```
-4. Configure the Unity player settings to build Visual Studio 2017 solution.
-5. Use Visual Studio to build and deploy application to HoloLens.
-6. Prepare the correspondent printed marker of ARToolKit.
-	* Marker images are [Here](https://github.com/artoolkit/artoolkit5/tree/master/doc/patterns).
-	* Make sure the printed marker size is same as configured in Unity.
-7. Move the marker around and see the effect.
-	* **HoloLens clicker** or **air tap** is able to disable and enable video preview. Disabled preview accelerates the rendering.
+## How to use HoloLensARToolKit
 
-## Compatibility Tested
+Please refer to: **[Instructions to run HoloLens v0.3 samples](https://github.com/qian256/HoloLensARToolKit/blob/master/HoloLensARToolKit/README.md)**.
 
-1. Unity 2018.3.1.f1
-2. Visual Studio 2017 (Toolset v141)
-3. ARToolKit 5.3.2
-4. Windows 10 SDK 10.0.10240.0 to 10.0.17134.0
+To use HoloLensARToolKit with your own project, simply import ```ARToolKitUWP.unitypackage``` to your Unity project.
 
-## Understand HoloLensARToolKit v0.2
+
+## Understand HoloLensARToolKit
+
+**The posts are created for HoloLensARToolKit v0.2, therefore some contents may be deprecated.**
+
 - [Overview: ARToolKit on HoloLens](http://longqian.me/2017/01/20/artoolkit-on-hololens/)
 - [Unity native programming](http://longqian.me/2017/01/29/unity-native-programming/)
 - [ARUWPController options v0.2](http://longqian.me/2017/05/15/hololens-artoolkit-controller-v02/)
@@ -81,6 +70,21 @@ The following example videos are taken with HoloLensARToolKit **[v0.1](https://g
 If this work helps your research, please cite the following paper:
 
 ```tex
+@article{qian2018arssist,
+  title={ARssist: augmented reality on a head-mounted display for the first assistant in robotic surgery},
+  author={Qian, Long and Deguet, Anton and Kazanzides, Peter},
+  journal={Healthcare technology letters},
+  volume={5},
+  number={5},
+  pages={194--200},
+  year={2018},
+  publisher={IET}
+}
+```
+
+If you use HoloLensARToolKit v0.2, please cite:
+
+```tex
 @article{azimiqian2018alignment,
   title={Alignment of the Virtual Scene to the 3D Display Space of a Mixed Reality Head-Mounted Display},
   author={Azimi, Ehsan and Qian, Long and Navab, Nassir and Kazanzides, Peter},
@@ -93,9 +97,7 @@ If this work helps your research, please cite the following paper:
 ---
 
 ## License
-HoloLensARToolKit is composed of two separate projects: ARToolKitUWP and ARToolKitUWP-Unity (including samples). Both of them are open for use in compliance with [GNU Lesser General Public License (LGPL v3.0)](https://www.gnu.org/licenses/lgpl-3.0.en.html). Please see COPYING and COPYING.LESSER for license details.
 
-ARToolKitUWP is a modified version of ARToolKit, statically links against ARToolKit binaries, and therefore complies with the license restrictions of ARToolKit (see [details](https://github.com/artoolkit/artoolkit5)).
-
+HoloLensARToolKit is open for use in compliance with [GNU Lesser General Public License (LGPL v3.0)](https://www.gnu.org/licenses/lgpl-3.0.en.html). Please see COPYING and COPYING.LESSER for license details.
 
 

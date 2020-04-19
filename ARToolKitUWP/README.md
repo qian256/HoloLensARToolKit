@@ -4,13 +4,17 @@ ARToolKit Wrapper for UWP (Universal Windows Platform)
 
 Author: [Long Qian](http://longqian.me/aboutme)
 
-Date: 2017-05-13
+Date: 2020-04-19
 
 ## Overview
-ARWrapper library provided by [ARToolKit](https://github.com/artoolkit/artoolkit5) is compatible with multiple platforms, but not with UWP yet. This project intends to fill this gap. The native library built by this project consumes UWP runtime, and can be accessed by .NET applications via [PInovoke](http://www.pinvoke.net/).
+
+ARWrapper library provided by [ARToolKit](https://github.com/artoolkit/artoolkit5) is compatible with multiple platforms, but not with UWP yet. This project intends to fill this gap. The native library built by this project consumes UWP runtime, and can be accessed by .NET applications via [PInovoke](http://www.pinvoke.net/). 
+
+Starting v0.3, ARToolKitUWP supports HoloLens 2 (ARM64) in addition to HoloLens 1 (x86).
 
 ## What's in?
-```ARToolKitUWP.sln``` solution builds a dynamic link library for x86, namely, ```ARToolKitUWP.dll```. This library incorperates the following ARToolKit (v5.3.2) components:  
+
+```ARToolKitUWP.sln``` solution builds a dynamic link library for x86 or ARM64, namely, ```ARToolKitUWP.dll```. This library incorperates the following ARToolKit (v5.3.2) components:  
 - AR.lib
 - ARICP.lib
 - ARMulti.lib
@@ -20,13 +24,14 @@ Therefore, this wrapper is capable of detecting single-pattern markers and multi
 ## Exported APIs
 The exported functions from this dll are listed in ```ARToolKitUWP/include/ARToolKitUWP.h```.
 
+
 ## Build
 - Make sure you have [Visual Studio 2017](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio) and [Windows 10 SDK](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk) installed.
-- Open solution file ```ARToolKitUWP.sln```, choose configuration ```Release|Win32```, and hit ```Build Solution```.
+- Open solution file ```ARToolKitUWP.sln```, choose configuration ```Release, Win32``` or ```Release, ARM64```, and hit ```Build Solution```.
 - Find the ```ARToolKitUWP.dll``` file at the output directory. Simple.
 
 ## For Unity3D and HoloLens
-Place the built library in Unity project folder: ```Assets/Plugins/WSA/x86/```.
+Place the built library in Unity project folder: ```Assets/ARToolKitUWP/Plugins/WSA/x86/``` or ```Assets/ARToolKitUWP/Plugins/WSA/ARM64/```. In the Unity inspector, these libraries need to be manually set for ```WSAPlayer``` and the correct CPU architecture.
 
 
 ---
