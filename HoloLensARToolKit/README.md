@@ -1,6 +1,6 @@
 HoloLensARToolKit
 ===
-A Unity3D application using ARToolKitUWP-Unity. It has already imported ```ARToolKitUWP.unitypackage``` and ```ARToolKitUWP-Sample.unitypackage```.
+A Unity3D application using ARToolKitUWP. It has already imported ```ARToolKitUWP.unitypackage``` and ```ARToolKitUWP-Sample.unitypackage```.
 
 Author: [Long Qian](http://longqian.me/aboutme)
 
@@ -45,7 +45,7 @@ This folder contains samples that utilize ARToolKitUWP to build applications bas
 8. You will see the **Preview Video** at the top left corner, and applications stats at the top right corner. Once the paper marker is present, the virtual content will appear.
 
 
-## Notice
+## Further Notice
 
 * HoloLensARToolKit may not work with Mixed Reality Capture of HoloLens.
 * The ```ARUWP Video / Enable Video Preview``` checkbox in the Unity inspector should be turned off in real applications (when performance matters).

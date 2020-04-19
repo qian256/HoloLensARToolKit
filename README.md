@@ -5,7 +5,8 @@ Author: [Long Qian](http://longqian.me/aboutme)
 Date: 2020-04-19
 
 ## Overview
-**HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) (v5.3.2) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us), or generally UWP (Universal Windows Platform). With fiducial marker tracking provided by ARToolKit, plus the indoor localization of HoloLens, many Augmented Reality applications would be made possible.
+
+**HoloLensARToolKit** is a successful experiment to integrate [ARToolKit](http://artoolkit.org/) (v5.3.2) with [HoloLens](https://www.microsoft.com/microsoft-hololens/en-us) (**HoloLens 2 support added in v0.3**), or generally UWP (Universal Windows Platform). With fiducial marker tracking provided by ARToolKit, plus the indoor localization of HoloLens, many Augmented Reality applications would be made possible.
 
 This repository contains:
 - `ARToolKitUWP/`: Wrapper of [ARToolKit5](https://github.com/artoolkit/artoolkit5) for UWP
@@ -17,15 +18,24 @@ This repository contains:
 
 ## What's new in v0.3?
 
-* HoloLensARToolKit v0.3 starts to support **HoloLens 2**, meaning that the core library ```ARToolKitUWP.dll``` for **ARM64** is available, in addition to **x86** for HoloLens 1. The video pipeline for HoloLens 2 is integrated into the Unity project API, currently supporting video configuration **1504x846** at 30Hz and **60Hz**! Sample camera calibration file for HoloLens 2 is provided.
+* HoloLensARToolKit v0.3 starts to support **HoloLens 2**, meaning that the core library ```ARToolKitUWP.dll``` for **ARM64** is available, in addition to **x86** for HoloLens 1. The video pipeline for HoloLens 2 is integrated into the Unity project API, currently supporting video configuration **1504 x 846 x 60 Hz** and **1504 x 846 x 30 Hz**. Sample camera calibration file for HoloLens 2 is provided.
 
-* Grayscale video parsing, previously implemented in [feature-grayscale](https://github.com/qian256/HoloLensARToolKit/tree/feature-grayscale) branch is now forced in v0.3. It significantly reduce CPU memory copy, and therefore improves tracking throughput.
+* Grayscale video parsing, previously implemented in [feature-grayscale](https://github.com/qian256/HoloLensARToolKit/tree/feature-grayscale) branch is now forced in v0.3. It significantly reduces CPU memory copy, and therefore improves fiducial tracking throughput.
 
-* A new script ```ARUWPTarget.cs``` is added, which should be attached to root of virtual content registered with each marker. It also supports 6-DOF **smoothing**, preventing sudden jump due to tracking errors. 
+* A new script ```ARUWPTarget.cs``` is added to the Unity project API, which should be attached to root of virtual content registered with each marker. It also supports 6-DOF **smoothing**, preventing sudden jump due to tracking errors. 
 
 * A calibration matrix, ```ARUWPMarker::calibrationMatrix```, allows users to offset the virtual rendering in 6-DOF, replacing the magic functions in older versions. 
 
 * **IL2CPP** becomes the default scripting backend.
+
+
+
+## How to use HoloLensARToolKit
+
+Please refer to: **[Instructions to run HoloLens v0.3 samples](https://github.com/qian256/HoloLensARToolKit/blob/master/HoloLensARToolKit/README.md)**.
+
+To use HoloLensARToolKit with your own project, simply import ```ARToolKitUWP.unitypackage``` to your Unity project.
+
 
 
 ## Examples from v0.1
@@ -42,14 +52,6 @@ The following example videos are taken with HoloLensARToolKit **[v0.1](https://g
 	<td align="center">HoloLensARToolKit Samples (<a href="https://youtu.be/PqT90QfgP-U"><b>Youtube Video</b></a>)</td>
 </tr>
 </table>
-
-
-## How to use HoloLensARToolKit
-
-Please refer to: **[Instructions to run HoloLens v0.3 samples](https://github.com/qian256/HoloLensARToolKit/blob/master/HoloLensARToolKit/README.md)**.
-
-To use HoloLensARToolKit with your own project, simply import ```ARToolKitUWP.unitypackage``` to your Unity project.
-
 
 ## Understand HoloLensARToolKit
 
