@@ -77,7 +77,8 @@ class ARMarker {
 public:
 	enum MarkerType {
 		SINGLE,		// standard single square marker
-		MULTI		// composite marker made up of multiple single markers
+		MULTI,      // composite marker made up of multiple single markers
+        NFT         // rectangular textured marker backed by an NFT data set.
 	};
 	MarkerType type;
 	int UID;		// internal unique ID, not same as pattern ID

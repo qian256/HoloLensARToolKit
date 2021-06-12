@@ -186,7 +186,7 @@ void arLog(const int logLevel, const char *format, ...)
     len = _vscprintf(format, ap);
     if (len >= 0) {
         buf = (char *)malloc((len + 1) * sizeof(char)); // +1 for nul-term.
-        vsnprintf(buf, len, format, ap);
+        vsnprintf(buf, len + 1, format, ap);
         buf[len] = '\0'; // nul-terminate.
     }
 #else

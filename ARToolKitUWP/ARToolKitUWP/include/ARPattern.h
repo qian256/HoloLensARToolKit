@@ -37,6 +37,7 @@
 
 
 #include <AR/ar.h>
+#include <AR2/imageSet.h>
 #include <Image.h>
 
 /**
@@ -64,6 +65,7 @@ public:
 
 	bool loadTemplate(int patternID, const ARPattHandle *arPattHandle, float width);
 	bool loadMatrix(int barcodeID, AR_MATRIX_CODE_TYPE type, float width);
+    bool loadISet(const AR2ImageSetT *imageSet, float nftScale);
 
 	ARdouble m_matrix[16];	///< Transform of the pattern from origin.
 	float m_width;          ///< Width of the pattern in mm.

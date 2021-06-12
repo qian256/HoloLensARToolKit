@@ -113,6 +113,8 @@ extern "C" {
 	EXPORT_API int aruwpGetMatrixCodeType();
 	EXPORT_API void aruwpSetImageProcMode(int mode);
 	EXPORT_API int aruwpGetImageProcMode();
+    EXPORT_API void aruwpSetNFTMultiMode(bool on);    
+    EXPORT_API bool aruwpGetNFTMultiMode();
 
 	// marker management
 	/**
@@ -120,6 +122,7 @@ extern "C" {
 	* one of:
 	* - Single marker:		"single;pattern_file;pattern_width", e.g. "single;data/hiro.patt;80"
 	* - Multi marker:		"multi;config_file", e.g. "multi;data/multi/marker.dat"
+	* - NFT marker:         "nft;nft_dataset_pathname", e.g. "nft;gibraltar"
 	* @param cfg		The configuration string
 	* @return			The unique identifier (UID) of the marker instantiated based on the configuration string, or -1 if an error occurred
 	*/
@@ -174,8 +177,19 @@ extern "C" {
 	*/
 	EXPORT_API bool aruwpGetMarkerPatternConfig(int markerUID, int patternID, ARdouble matrix[16], ARdouble *width, ARdouble *height, int *imageSizeX, int *imageSizeY);
 
-
 	/**
+	* Gets a pattern image associated with a marker. The provided color buffer is populated with the image of the 
+	* pattern for the specified marker. If the marker is a multimarker, then the pattern image specified by patternID is 
+	* used.
+	* Images of NFT markers are not currently supported, so at present this function will return no image for NFT markers.
+	* @param markerUID	The unique identifier (UID) of the marker
+	* @param patternID	The id for the pattern within that marker. Ignored for single markers and NFT markers.
+	* @param buffer	Color array to populate with pattern image. Use arwGetMarkerPatternConfig to get the required size of this array (imageSizeX * imageSizeY elements).
+	* @return			true if successful, false if an error occurred
+	*/
+	EXPORT_API bool aruwpGetMarkerPatternImage(int markerUID, int patternID, Color *buffer);
+    
+    /**
 	* Constants for use with marker option setters/getters.
 	*/
 	enum {

@@ -73,7 +73,7 @@ void FrameSource::configure(const char* cparaName, const char* cparaBuff, size_t
 		size_t len = strlen(cparaName);
 		cameraParam = (char*)malloc(sizeof(char) * len + 1);
 		strcpy(cameraParam, cparaName);
-		ARController::logv(AR_LOG_LEVEL_INFO, "Settting camera parameters file '%s'.", cameraParam);
+		ARController::logv(AR_LOG_LEVEL_INFO, "Setting camera parameters file '%s'.", cameraParam);
 		cameraParamLoaded = false;
 	}
 
@@ -81,7 +81,7 @@ void FrameSource::configure(const char* cparaName, const char* cparaBuff, size_t
 		cameraParamBufferLen = cparaBuffLen;
 		cameraParamBuffer = (char*)malloc(sizeof(char) * cameraParamBufferLen);
 		memcpy(cameraParamBuffer, cparaBuff, cameraParamBufferLen);
-		ARController::logv(AR_LOG_LEVEL_INFO, "Settting camera parameters buffer: %ld bytes.", cameraParamBufferLen);
+		ARController::logv(AR_LOG_LEVEL_INFO, "Setting camera parameters buffer: %ld bytes.", cameraParamBufferLen);
 		cameraParamLoaded = false;
 	}
 	ARController::logv(AR_LOG_LEVEL_DEBUG, "FrameSource::configure(): exiting");

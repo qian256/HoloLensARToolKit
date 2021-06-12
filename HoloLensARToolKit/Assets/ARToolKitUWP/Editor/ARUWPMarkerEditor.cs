@@ -45,6 +45,7 @@ public class ARUWPMarkerEditor : Editor {
         singleWidth_Prop,
         singleBarcodeID_Prop,
         multiFileName_Prop,
+        nftFileName_Prop,
         showOptions_Prop,
         oFiltered_Prop,
         oSampleRate_Prop,
@@ -67,6 +68,7 @@ public class ARUWPMarkerEditor : Editor {
         singleWidth_Prop = serializedObject.FindProperty("singleWidth");
         singleBarcodeID_Prop = serializedObject.FindProperty("singleBarcodeID");
         multiFileName_Prop = serializedObject.FindProperty("multiFileName");
+        nftFileName_Prop = serializedObject.FindProperty("nftFileName");
         showOptions_Prop = serializedObject.FindProperty("showOptions");
         oFiltered_Prop = serializedObject.FindProperty("oFiltered");
         oSampleRate_Prop = serializedObject.FindProperty("oSampleRate");
@@ -107,6 +109,10 @@ public class ARUWPMarkerEditor : Editor {
 
             case ARUWPMarker.MarkerType.multi:
                 EditorGUILayout.PropertyField(multiFileName_Prop, new GUIContent("File Name"));
+                break;
+
+            case ARUWPMarker.MarkerType.nft:
+                EditorGUILayout.PropertyField(nftFileName_Prop, new GUIContent("File Name"));
                 break;
         }
 

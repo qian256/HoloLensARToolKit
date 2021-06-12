@@ -76,7 +76,12 @@ public class ARUWPMarker : MonoBehaviour{
         /// Multi-marker consisting several pattern markers or several matrix code markers,
         /// described by a configuration file.
         /// </summary>
-        multi
+        multi,
+        /// <summary>
+        /// NFT marker based on a two-dimensional textured image,
+        /// described by a configuration file.
+        /// </summary>
+        nft
     }
 
     /// <summary>
@@ -166,6 +171,20 @@ public class ARUWPMarker : MonoBehaviour{
     /// The array of ARUWPPatterns contained in the multi-marker. [internal use]
     /// </summary>
     private ARUWPPattern[] multiPatterns;
+
+    /// <summary>
+    /// Indicate the filename of nft-marker configuration. Useful when marker type is nft.
+    /// [public use] [initialization only]
+    /// </summary>
+    public string nftFileName = "DataNFT/pinball";
+
+    // TODO 
+
+    /// <summary>
+    /// Initial value of the scale factor applied to the NFT marker size. At runtime, please use 
+    /// SetOptionScaleFactor() to modify the value. [public use] [initialization only]
+    /// </summary>
+    //public float oNFTScaleFactor = 1.0f; // => SetOptionScaleFactor() based on "ARUWP_MARKER_OPTION_NFT_SCALE"
 
     /// <summary>
     /// The definition of ARUWPPattern, representing single markers in a multi-marker.
@@ -430,6 +449,10 @@ public class ARUWPMarker : MonoBehaviour{
                 case MarkerType.multi:
                     str = "multi;Data/StreamingAssets/" + multiFileName;
                     break;
+
+                case MarkerType.nft:
+                    str = "nft;Data/StreamingAssets/" + nftFileName;
+                    break;
             }
             id = ARUWP.aruwpAddMarker(str);
             if (id != -1) {
@@ -596,7 +619,7 @@ public class ARUWPMarker : MonoBehaviour{
     /// </summary>
     /// <param name="o">New parameter</param>
     public void SetOptionUseContPoseEst(bool o) {
-        if (id != -1 && type != MarkerType.multi) {
+        if (id != -1 && type != MarkerType.multi && type != MarkerType.nft) {
             if (HasNativeHandle()) {
                 ARUWP.aruwpSetMarkerOptionBool(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, o? 1:0);
                 oUseContPoseEst = ARUWP.aruwpGetMarkerOptionBool(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION);
@@ -618,7 +641,7 @@ public class ARUWPMarker : MonoBehaviour{
     /// </summary>
     /// <param name="o">New parameter</param>
     public void SetOptionConfCutOff(float o) {
-        if (id != -1 && type != MarkerType.multi) {
+        if (id != -1 && type != MarkerType.multi && type != MarkerType.nft) {
             if (HasNativeHandle()) {
                 ARUWP.aruwpSetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE_CUTOFF, o);
                 oConfCutOff = ARUWP.aruwpGetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE_CUTOFF);
@@ -724,6 +747,9 @@ public class ARUWPMarker : MonoBehaviour{
                 break;
             case MarkerType.multi:
                 str += "Marker filename: " + multiFileName + "\n";
+                break;
+            case MarkerType.nft:
+                str += "Marker filename: " + nftFileName + "\n";
                 break;
         }
         str += "Marker filtered: " + oFiltered + "\n";
