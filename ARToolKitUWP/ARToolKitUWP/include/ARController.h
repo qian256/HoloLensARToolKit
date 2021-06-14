@@ -78,6 +78,9 @@
 #include <ARMarkerSquare.h>
 #include <ARMarkerMulti.h>
 #include <ARFrame.h>
+#include <AR2/tracking.h>
+#include <KPM/kpm.h>
+#include <ARMarkerNFT.h>
 
 #include <vector>
 #include <stdio.h>
@@ -92,6 +95,7 @@
 #define LOGE(...) fprintf(stderr, __VA_ARGS__)
 typedef void (CALL_CONV *PFN_LOGCALLBACK)(const char* msg);
 
+#define PAGES_MAX 64
 
 /**
 * Wrapper for ARToolKit functionality. This class handles ARToolKit initialisation, updates,
@@ -127,6 +131,15 @@ private:
 	ARHandle *m_arHandle;				///< Structure containing general ARToolKit tracking information
 	ARPattHandle *m_arPattHandle;			///< Structure containing information about trained patterns
 	AR3DHandle *m_ar3DHandle;		    ///< Structure used to compute 3D poses from tracking data
+	bool doNFTMarkerDetection;
+    bool m_nftMultiMode;
+    bool m_kpmRequired;
+    bool m_kpmBusy;
+    // NFT data.
+    THREAD_HANDLE_T     *trackingThreadHandle;
+    AR2HandleT          *m_ar2Handle;
+    KpmHandle           *m_kpmHandle;
+    AR2SurfaceSetT      *surfaceSet[PAGES_MAX]; // Weak-reference. Strong reference is now in ARMarkerNFT class.
 	
 	int frameWidth, frameHeight;
 	AR_PIXEL_FORMAT pixelFormat;
@@ -144,7 +157,9 @@ private:
 	//
 
 	bool initARMore(void);
-
+    bool unloadNFTData(void);
+    bool loadNFTData(void);
+    bool initNFT(void);
 
 	static void logvBuf(va_list args, const char* format, char **bufPtr, int* lenPtr);
 	static void logvWriteBuf(char* buf, int len, const int logLevel);
@@ -252,5 +267,8 @@ public:
 
 	void setImageProcMode(int mode);
 	int getImageProcMode() const;
+	
+    void setNFTMultiMode(bool on);
+    bool getNFTMultiMode() const;
 	
 };

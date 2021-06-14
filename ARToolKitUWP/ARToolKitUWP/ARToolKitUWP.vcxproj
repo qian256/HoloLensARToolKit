@@ -26,35 +26,36 @@
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <AppContainerApplication>true</AppContainerApplication>
     <ApplicationType>Windows Store</ApplicationType>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformMinVersion>10.0.14393.0</WindowsTargetPlatformMinVersion>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.10240.0</WindowsTargetPlatformMinVersion>
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WindowsAppContainer>true</WindowsAppContainer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WindowsAppContainer>true</WindowsAppContainer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WindowsAppContainer>true</WindowsAppContainer>
+    <SpectreMitigation>false</SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WindowsAppContainer>true</WindowsAppContainer>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -103,62 +104,79 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <CompileAsWinRT>false</CompileAsWinRT>
       <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(ProjectDir)..\ARToolKit5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(ProjectDir)..\ARToolKit5\include;$(ProjectDir)..\ARToolKit5\src\Util\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies>$(ProjectDir)..\$(Configuration)\$(Platform)\ARd.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARICPd.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARMultid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\$(Configuration)\$(Platform)\ARd.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\AR2d.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARICPd.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARMultid.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARUtild.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\KPMd.lib;$(ProjectDir)..\ARToolKit5\lib\x86\libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VCToolsInstallDir)\lib\$(PlatformShortName);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(TargetDir)$(TargetFileName)" "$(SolutionDir)..\HoloLensARToolKit\Assets\ARToolKitUWP\Plugins\WSA\x86\$(TargetFileName)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <CompileAsWinRT>false</CompileAsWinRT>
       <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(ProjectDir)..\ARToolKit5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(ProjectDir)..\ARToolKit5\include;$(ProjectDir)..\ARToolKit5\src\Util\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies>$(ProjectDir)..\$(Configuration)\$(Platform)\ARd.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARICPd.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARMultid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\$(Configuration)\$(Platform)\ARd.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\AR2d.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARICPd.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARMultid.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARUtild.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\KPMd.lib;$(ProjectDir)..\ARToolKit5\lib\x86_arm64\libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(TargetDir)$(TargetFileName)" "$(SolutionDir)..\HoloLensARToolKit\Assets\ARToolKitUWP\Plugins\WSA\ARM64\$(TargetFileName)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <CompileAsWinRT>false</CompileAsWinRT>
       <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(ProjectDir)..\ARToolKit5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(ProjectDir)..\ARToolKit5\include;$(ProjectDir)..\ARToolKit5\src\Util\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies>$(ProjectDir)..\$(Configuration)\$(Platform)\AR.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARICP.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARMulti.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\$(Configuration)\$(Platform)\AR.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\AR2.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARICP.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARMulti.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARUtil.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\KPM.lib;$(ProjectDir)..\ARToolKit5\lib\x86\libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VCToolsInstallDir)\lib\$(PlatformShortName);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(TargetDir)$(TargetFileName)" "$(SolutionDir)..\HoloLensARToolKit\Assets\ARToolKitUWP\Plugins\WSA\x86\$(TargetFileName)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <CompileAsWinRT>false</CompileAsWinRT>
       <PreprocessorDefinitions>_M_ARM64;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(ProjectDir)..\ARToolKit5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(ProjectDir)..\ARToolKit5\include;$(ProjectDir)..\ARToolKit5\src\Util\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies>$(ProjectDir)..\$(Configuration)\$(Platform)\AR.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARICP.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARMulti.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\$(Configuration)\$(Platform)\AR.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\AR2.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARICP.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARMulti.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\ARUtil.lib;$(ProjectDir)..\$(Configuration)\$(Platform)\KPM.lib;$(ProjectDir)..\ARToolKit5\lib\x86_arm64\libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(TargetDir)$(TargetFileName)" "$(SolutionDir)..\HoloLensARToolKit\Assets\ARToolKitUWP\Plugins\WSA\ARM64\$(TargetFileName)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\ARToolKit5\src\Util\thread_sub_winrt.h" />
     <ClInclude Include="include\ARController.h" />
     <ClInclude Include="include\ARFrame.h" />
     <ClInclude Include="include\ARMarker.h" />
     <ClInclude Include="include\ARMarkerMulti.h" />
+    <ClInclude Include="include\ARMarkerNFT.h" />
     <ClInclude Include="include\ARMarkerSquare.h" />
     <ClInclude Include="include\ARPattern.h" />
     <ClInclude Include="include\ARToolKitUWP.h" />
@@ -167,10 +185,25 @@
     <ClInclude Include="include\targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\ARToolKit5\src\Util\thread_sub_winrt.cpp">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</CompileAsWinRT>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</CompileAsWinRT>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">NotUsing</PrecompiledHeader>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</CompileAsWinRT>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\ARController.cpp" />
     <ClCompile Include="src\ARFrame.cpp" />
     <ClCompile Include="src\ARMarker.cpp" />
     <ClCompile Include="src\ARMarkerMulti.cpp" />
+    <ClCompile Include="src\ARMarkerNFT.cpp" />
     <ClCompile Include="src\ARMarkerSquare.cpp" />
     <ClCompile Include="src\ARPattern.cpp" />
     <ClCompile Include="src\ARToolKitUWP.cpp" />

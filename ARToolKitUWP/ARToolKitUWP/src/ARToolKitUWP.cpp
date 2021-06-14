@@ -241,6 +241,17 @@ EXPORT_API int aruwpGetImageProcMode()
 	return gARTK->getImageProcMode();
 }
 
+EXPORT_API void aruwpSetNFTMultiMode(bool on)
+{
+    if (!gARTK) return;
+    gARTK->setNFTMultiMode(on);
+}
+
+EXPORT_API bool aruwpGetNFTMultiMode()
+{
+    if (!gARTK) return false;
+    return gARTK->getNFTMultiMode();
+}
 EXPORT_API int aruwpAddMarker(const char *cfg)
 {
 	if (!gARTK) return -1;
@@ -323,6 +334,30 @@ EXPORT_API bool aruwpGetMarkerPatternConfig(int markerUID, int patternID, ARdoub
 	return true;
 }
 
+EXPORT_API bool aruwpGetMarkerPatternImage(int markerUID, int patternID, Color *buffer)
+{
+	ARMarker *marker;
+	ARPattern *p;
+    
+	if (!gARTK) return false;
+	if (!(marker = gARTK->findMarker(markerUID))) {
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwGetMarkerPatternImage(): Couldn't locate marker with UID %d.", markerUID);
+		return false;
+	}
+    
+	if (!(p = marker->getPattern(patternID))) {
+		gARTK->logv(AR_LOG_LEVEL_ERROR, "arwGetMarkerPatternImage(): Marker with UID %d has no pattern with ID %d.", markerUID, patternID);
+		return false;
+	}
+
+	if (!p->m_image) {
+		return false;
+	}
+    
+	memcpy(buffer, p->m_image, sizeof(Color) * p->m_imageSizeX * p->m_imageSizeY);
+	return true;
+
+}
 
 EXPORT_API bool aruwpGetMarkerOptionBool(int markerUID, int option)
 {
@@ -438,7 +473,8 @@ EXPORT_API ARdouble aruwpGetMarkerOptionFloat(int markerUID, int option)
 		else return (NAN);
 		break;
 	case ARUWP_MARKER_OPTION_NFT_SCALE:
-		return (NAN);
+    	if (marker->type == ARMarker::NFT) return ((ARdouble)((ARMarkerNFT *)marker)->getNFTScale());
+        else return (NAN);
 		break;
 	case ARUWP_MARKER_OPTION_MULTI_MIN_CONF_MATRIX:
 		if (marker->type == ARMarker::MULTI) return (ARdouble)((ARMarkerMulti *)marker)->config->cfMatrixCutoff;
@@ -476,6 +512,7 @@ EXPORT_API void aruwpSetMarkerOptionFloat(int markerUID, int option, ARdouble va
 		if (marker->type == ARMarker::SINGLE) ((ARMarkerSquare *)marker)->setConfidenceCutoff(value);
 		break;
 	case ARUWP_MARKER_OPTION_NFT_SCALE:
+    	if (marker->type == ARMarker::NFT) ((ARMarkerNFT *)marker)->setNFTScale(value);
 		break;
 	case ARUWP_MARKER_OPTION_MULTI_MIN_CONF_MATRIX:
 		if (marker->type == ARMarker::MULTI) ((ARMarkerMulti *)marker)->config->cfMatrixCutoff = value;

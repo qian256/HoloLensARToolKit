@@ -369,15 +369,22 @@ public class ARUWPVideo : MonoBehaviour {
 			frameReader.FrameArrived += OnFrameArrived;
 			controller.frameWidth = Convert.ToInt32(targetResFormat.VideoFormat.Width);
 			controller.frameHeight = Convert.ToInt32(targetResFormat.VideoFormat.Height);
-			// if controller.frameWidth is not aligned with 64, then pad to 64
-			// on HoloLens 2, it is a must
-			if (controller.frameWidth % 64 != 0) {
-				int paddedFrameWidth = ((controller.frameWidth >> 6) + 1) << 6;
-				Debug.Log(TAG + ": the width is padded to " + paddedFrameWidth);
-				controller.frameWidth = paddedFrameWidth;
+
+			if (controller.IsPatternDetectionModeColor()) {
+				frameData = new byte[controller.frameWidth * controller.frameHeight * 4];
 			}
-			// Since v0.3, feature grayscale is forced       
-			frameData = new byte[controller.frameWidth * controller.frameHeight];
+			else {
+				// if controller.frameWidth is not aligned with 64, then pad to 64
+				// on HoloLens 2, it is a must
+				if (controller.frameWidth % 64 != 0) {
+					int paddedFrameWidth = ((controller.frameWidth >> 6) + 1) << 6;
+					Debug.Log(TAG + ": the width is padded to " + paddedFrameWidth);
+					controller.frameWidth = paddedFrameWidth;
+				}
+
+				frameData = new byte[controller.frameWidth * controller.frameHeight];
+			}
+
 			Debug.Log(TAG + ": FrameReader is successfully initialized, " + controller.frameWidth + "x" + controller.frameHeight +
 				", Framerate: " + targetResFormat.FrameRate.Numerator + "/" + targetResFormat.FrameRate.Denominator);
 		}
@@ -419,6 +426,7 @@ public class ARUWPVideo : MonoBehaviour {
 	}
 
 	internal SpatialCoordinateSystem worldOrigin { get; private set; }
+	
 	public IntPtr WorldOriginPtr
 	{
 		set
@@ -666,7 +674,6 @@ public class ARUWPVideo : MonoBehaviour {
 		return m;
 	}
 	
-
 	/// <summary>
 	/// The callback that is triggered when new video preview frame arrives. In this function,
 	/// video frame is saved for Unity UI if videoPreview is enabled, tracking task is triggered
@@ -694,17 +701,27 @@ public class ARUWPVideo : MonoBehaviour {
 				}
 				latestLocatableCameraToWorld = ConvertFloatArrayToMatrix4x4(cameraToWorldMatrixAsFloat);
 
-				var originalSoftwareBitmap = frame.VideoMediaFrame.SoftwareBitmap;
-				using (var input = originalSoftwareBitmap.LockBuffer(BitmapBufferAccessMode.Read))
-				using (var inputReference = input.CreateReference()) {
-					byte* inputBytes;
-					uint inputCapacity;
-					((IMemoryBufferByteAccess)inputReference).GetBuffer(out inputBytes, out inputCapacity);
-					Marshal.Copy((IntPtr)inputBytes, frameData, 0, frameData.Length);
+				SoftwareBitmap softwareBitmap;
+	
+				if (controller.IsPatternDetectionModeColor()) {
+					softwareBitmap = SoftwareBitmap.Convert(frame.VideoMediaFrame.SoftwareBitmap, BitmapPixelFormat.Rgba8, BitmapAlphaMode.Ignore);
 				}
+				else {
+					softwareBitmap = frame.VideoMediaFrame.SoftwareBitmap;
+				}				
+
+				using (var input = softwareBitmap.LockBuffer(BitmapBufferAccessMode.Read)) {
+					using (var inputReference = input.CreateReference()) {
+						byte* inputBytes;
+						uint inputCapacity;
+						((IMemoryBufferByteAccess)inputReference).GetBuffer(out inputBytes, out inputCapacity);
+						Marshal.Copy((IntPtr)inputBytes, frameData, 0, frameData.Length);
+					}
+				}
+
 				// Process the frame in this thread (still different from Unity thread)
 				controller.ProcessFrameSync(frameData, latestLocatableCameraToWorld);
-				originalSoftwareBitmap?.Dispose();
+				softwareBitmap?.Dispose();
 				signalTrackingUpdated = true;
 			}
 		}
@@ -748,17 +765,14 @@ public class ARUWPVideo : MonoBehaviour {
 
 		if (signalInitDone) {
 			if (mediaMaterial != null) {
-				// Since v0.3, feature grayscale is forced
-				mediaTexture = new Texture2D(controller.frameWidth, controller.frameHeight, TextureFormat.Alpha8, false);
+				mediaTexture = new Texture2D(controller.frameWidth, controller.frameHeight, controller.IsPatternDetectionModeColor() ? TextureFormat.RGBA32 : TextureFormat.Alpha8, false);
 				mediaMaterial.mainTexture = mediaTexture;
 			}
 			signalInitDone = false;
 		}
 
 		if (signalTrackingUpdated) {
-
 			if (videoPreview && previewPlane != null && mediaMaterial != null) {
-				// Since v0.3, feature grayscale is forced
 				if (frameData != null) {
 					mediaTexture.LoadRawTextureData(frameData);
 					mediaTexture.Apply();

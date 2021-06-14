@@ -167,12 +167,10 @@ public class ARUWPController : MonoBehaviour {
     /// PatternDetectionMode types, same definition as ARToolKit. [public use]
     /// </summary>
     public enum PatternDetectionMode {
-        // Since v0.3, feature grayscale is forced
-        //AR_TEMPLATE_MATCHING_COLOR = ARUWP.AR_TEMPLATE_MATCHING_COLOR,
+        AR_TEMPLATE_MATCHING_COLOR = ARUWP.AR_TEMPLATE_MATCHING_COLOR,
         AR_TEMPLATE_MATCHING_MONO = ARUWP.AR_TEMPLATE_MATCHING_MONO,
         AR_MATRIX_CODE_DETECTION = ARUWP.AR_MATRIX_CODE_DETECTION,
-        // Since v0.3, feature grayscale is forced
-        //AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX = ARUWP.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX,
+        AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX = ARUWP.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX,
         AR_TEMPLATE_MATCHING_MONO_AND_MATRIX = ARUWP.AR_TEMPLATE_MATCHING_MONO_AND_MATRIX
     }
 
@@ -356,8 +354,7 @@ public class ARUWPController : MonoBehaviour {
         ARUWP.aruwpRegisterLogCallbackWrapper(ARUWP.Log);
         ARUWP.aruwpSetLogLevel((int)(AR_LOG_LEVEL.AR_LOG_LEVEL_INFO));
         
-        // Since v0.3, feature grayscale is forced
-        var ret = ARUWP.aruwpInitialiseAR(frameWidth, frameHeight, ARUWP.AR_PIXEL_FORMAT_MONO);
+        var ret = ARUWP.aruwpInitialiseAR(frameWidth, frameHeight, IsPatternDetectionModeColor() ? ARUWP.AR_PIXEL_FORMAT_RGBA : ARUWP.AR_PIXEL_FORMAT_MONO);
         if (!ret) {
             Debug.Log(TAG + ": aruwpInitialiseAR() failed");
             return false;
@@ -395,7 +392,7 @@ public class ARUWPController : MonoBehaviour {
         SetImageProcMode(imageProcMode);
 
         LogVersionString();
-        LogFrameInforamtion();
+        LogFrameInformation();
 
         status = ARUWP.ARUWP_STATUS_CTRL_INITIALIZED;
         Debug.Log(TAG + ": InitializeControllerAsyncTaskFunc() is successful");
@@ -404,7 +401,7 @@ public class ARUWPController : MonoBehaviour {
     }
     
     /// <summary>
-    /// The task wrapper of initialization heavy funtion. [internal use]
+    /// The task wrapper of initialization heavy function. [internal use]
     /// </summary>
     /// <returns></returns>
     private Task<bool> InitializeControllerAsyncTask() {
@@ -611,6 +608,16 @@ public class ARUWPController : MonoBehaviour {
     }
 
 
+    /// <summary>
+    /// Determine whether the pattern detection mode is set to AR_TEMPLATE_MATCHING_COLOR or 
+    /// AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX [internal use]
+    /// </summary>
+    /// <returns>Whether the pattern detection is based on color mode</returns>
+    public bool IsPatternDetectionModeColor() {
+        return patternDetectionMode == PatternDetectionMode.AR_TEMPLATE_MATCHING_COLOR ||
+               patternDetectionMode == PatternDetectionMode.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX;
+    }
+
 
     /// <summary>
     /// TODO: correctly shutdown the controller and free resources
@@ -673,7 +680,7 @@ public class ARUWPController : MonoBehaviour {
     /// <summary>
     /// Log the current frame information using Debug.Log(). [internal use]
     /// </summary>
-    private void LogFrameInforamtion() {
+    private void LogFrameInformation() {
         if (HasNativeHandle()) {
             int width, height, pixelSize;
             StringBuilder buffer = new StringBuilder(30);
@@ -683,7 +690,7 @@ public class ARUWPController : MonoBehaviour {
             Debug.Log("ARUWP: Frame pixel format string: " + buffer.ToString());
         }
         else {
-            Debug.Log(TAG + ": LogFrameInforamtion() unsupported status");
+            Debug.Log(TAG + ": LogFrameInformation() unsupported status");
         }
     }
 
