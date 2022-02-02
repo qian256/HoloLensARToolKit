@@ -73,6 +73,7 @@
 #include <ARMarker.h>
 #include <ARMarkerSquare.h>
 #include <ARMarkerMulti.h>
+#include <ARMarkerNFT.h>
 #include <ARController.h>
 
 
@@ -109,6 +110,8 @@ static char *get_buff(char *buf, int n, FILE *fp, int skipblanks)
 // single_buffer;80;buffer=234 221 237...
 // single_barcode;0;80
 // multi;data/multi/marker.dat
+// nft;data/nft/pinball
+
 ARMarker* ARMarker::newWithConfig(const char* cfg, ARPattHandle *arPattHandle)
 {
 	ARMarker *markerRet = NULL;
@@ -206,9 +209,17 @@ ARMarker* ARMarker::newWithConfig(const char* cfg, ARPattHandle *arPattHandle)
 					markerRet = NULL;
 				}
 			}
-
-		}
-		else {
+		} else if (strcmp(markerTypePtr, "nft") == 0) {
+			// NFT AR Marker, second token is the NFT data path base.
+			if (char *config = strtok(NULL, ";")) {
+	            markerRet = new ARMarkerNFT();
+	            if (!((ARMarkerNFT *)markerRet)->load(config)) {
+	                // Marker failed to load, or was not added
+	                delete markerRet;
+	                markerRet = NULL;
+	            }
+			}
+        } else {
 
 			// Unknown marker type
 			ARController::logv(AR_LOG_LEVEL_ERROR, "Error: Unknown marker type.");

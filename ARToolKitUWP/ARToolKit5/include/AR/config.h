@@ -397,7 +397,7 @@ enum {
 #undef  AR_DEFAULT_INPUT_WINDOWS_MEDIA_CAPTURE
 
 // Other Windows-only configuration.
-#define HAVE_LIBJPEG 0
+#define HAVE_LIBJPEG 1
 
 #endif // _WIN32
 

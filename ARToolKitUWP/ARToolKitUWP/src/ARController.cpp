@@ -74,6 +74,7 @@
 #include <ARController.h>
 #include <algorithm>
 #include <string>
+#include "trackingSub.h"
 #include <stdarg.h>
 
 
@@ -92,11 +93,18 @@ ARController::ARController() :
 	m_arHandle(NULL),
 	m_arPattHandle(NULL),
 	m_ar3DHandle(NULL),
+    doNFTMarkerDetection(false),
+    m_nftMultiMode(false),
+    m_kpmRequired(true),
+    m_kpmBusy(false),
+	trackingThreadHandle(NULL),
+    m_ar2Handle(NULL),
+	m_kpmHandle(NULL),
 	frameWidth(896),
 	frameHeight(504),
 	pixelFormat(AR_PIXEL_FORMAT_RGBA)
 {
-	;
+	for (int i = 0; i < PAGES_MAX; i++) surfaceSet[i] = NULL;
 }
 
 ARController::ARController(int width, int height, int format) :
@@ -114,11 +122,18 @@ ARController::ARController(int width, int height, int format) :
 	m_arHandle(NULL),
 	m_arPattHandle(NULL),
 	m_ar3DHandle(NULL),
+	doNFTMarkerDetection(false),
+    m_nftMultiMode(false),
+    m_kpmRequired(true),
+    m_kpmBusy(false),
+	trackingThreadHandle(NULL),
+    m_ar2Handle(NULL),
+	m_kpmHandle(NULL),
 	frameWidth(width),
 	frameHeight(height),
 	pixelFormat(AR_PIXEL_FORMAT(format))
 {
-	;
+	for (int i = 0; i < PAGES_MAX; i++) surfaceSet[i] = NULL;
 }
 
 
@@ -257,6 +272,15 @@ bool ARController::stopRunning()
 		logv(AR_LOG_LEVEL_ERROR, "ARController::stopRunning(): Error: Not running.");
 		return false;
 	}
+	
+	// Tracking thread is holding a reference to the camera parameters. Closing the
+    // video source will dispose of the camera parameters, thus invalidating this reference.
+    // So must stop tracking before closing the video source.
+    if (trackingThreadHandle) {
+        logv(AR_LOG_LEVEL_DEBUG, "ARController::stopRunning(): calling unloadNFTData()");
+        unloadNFTData();
+    }
+	
 
 	if (frameSource) {
 		logv(AR_LOG_LEVEL_DEBUG, "ARController::stopRunning(): if (frameSource) true");
@@ -265,6 +289,18 @@ bool ARController::stopRunning()
 		delete frameSource;
 		frameSource = NULL;
 	}
+
+    // NFT cleanup.
+    //logv("Cleaning up ARToolKit NFT handles.");
+    if (m_ar2Handle) {
+        logv(AR_LOG_LEVEL_DEBUG, "ARController::stopRunning(): calling ar2DeleteHandle(&m_ar2Handle)");
+        ar2DeleteHandle(&m_ar2Handle); // Sets m_ar2Handle to NULL.
+    }
+	
+    if (m_kpmHandle) {
+        logv(AR_LOG_LEVEL_DEBUG, "ARController::stopRunning(): calling kpmDeleteHandle(&m_kpmHandle)");
+        kpmDeleteHandle(&m_kpmHandle); // Sets m_kpmHandle to NULL.
+    }
 	
 	if (m_ar3DHandle) {
 		logv(AR_LOG_LEVEL_DEBUG, "ARController::stopRunning(): calling ar3DDeleteHandle(&m_ar3DHandle)");
@@ -354,11 +390,206 @@ bool ARController::update(ARUint8* frame)
 			}
 	} // doMarkerDetection
 
+	if (doNFTMarkerDetection) {
+        logv(AR_LOG_LEVEL_DEBUG, "ARController::update(): if (doNFTMarkerDetection) true");
+        
+        if (!m_kpmHandle || !m_ar2Handle) {
+            if (!initNFT()) {
+                logv(AR_LOG_LEVEL_ERROR, "ARController::update(): Error initialising NFT, exiting returning false");
+                return false;
+            }
+        }
+		
+        if (!trackingThreadHandle) {
+            loadNFTData();
+        }
+        
+        if (trackingThreadHandle) {            
+            // Do KPM tracking.
+            float err;
+            float trackingTrans[3][4];
+            
+            if (m_kpmRequired) {
+                if (!m_kpmBusy) {
+                    trackingInitStart(trackingThreadHandle, frame);
+                    m_kpmBusy = true;
+                } else {
+                    int ret;
+                    int pageNo;
+                    ret = trackingInitGetResult(trackingThreadHandle, trackingTrans, &pageNo);
+                    if (ret != 0) {
+                        m_kpmBusy = false;
+                        if (ret == 1) {
+                            if (pageNo >= 0 && pageNo < PAGES_MAX) {
+								if (surfaceSet[pageNo]->contNum < 1) {
+									//logv("Detected page %d.\n", pageNo);
+									ar2SetInitTrans(surfaceSet[pageNo], trackingTrans); // Sets surfaceSet[page]->contNum = 1.
+								}
+                            } else {
+                                logv(AR_LOG_LEVEL_ERROR, "ARController::update(): Detected bad page %d", pageNo);
+                            }
+                        } else /*if (ret < 0)*/ {
+                            //logv("No page detected.");
+                        }
+                    }
+                }
+            }
+            
+            // Do AR2 tracking and update NFT markers.
+            int page = 0;
+            int pagesTracked = 0;
+            bool success = true;
+            ARdouble *transL2R = NULL;
+
+            for (std::vector<ARMarker *>::iterator it = markers.begin(); it != markers.end(); ++it) {
+                if ((*it)->type == ARMarker::NFT) {
+                    
+                    if (surfaceSet[page]->contNum > 0) {
+                        if (ar2Tracking(m_ar2Handle, surfaceSet[page], frame, trackingTrans, &err) < 0) {
+                            //logv("Tracking lost on page %d.", page);
+                            success &= ((ARMarkerNFT *)(*it))->updateWithNFTResults(-1, NULL);
+                        } else {
+                            //logv("Tracked page %d (pos = {% 4f, % 4f, % 4f}).\n", page, trackingTrans[0][3], trackingTrans[1][3], trackingTrans[2][3]);
+                            success &= ((ARMarkerNFT *)(*it))->updateWithNFTResults(page, trackingTrans);
+                            pagesTracked++;
+                        }
+                    }
+                    
+                    page++;
+                }
+            }
+            
+            m_kpmRequired = (pagesTracked < (m_nftMultiMode ? page : 1));
+            
+        } // trackingThreadHandle
+    } // doNFTMarkerDetection
+
 	logv(AR_LOG_LEVEL_DEBUG, "ARController::update(): exiting, returning true");
 
 	return true;
 }
 
+bool ARController::initNFT(void)
+{
+ 	logv(AR_LOG_LEVEL_INFO, "ARController::initNFT(): called, initialising NFT");
+    //
+    // NFT init.
+    //
+    
+    // KPM init.
+    m_kpmHandle = kpmCreateHandle(frameSource->getCameraParameters(), frameSource->getPixelFormat());
+    if (!m_kpmHandle) {
+        logv(AR_LOG_LEVEL_ERROR, "ARController::initNFT(): Error: kpmCreatHandle, exiting, returning false");
+        return (false);
+    }
+    //kpmSetProcMode( m_kpmHandle, KpmProcHalfSize );
+    
+    // AR2 init.
+    if( (m_ar2Handle = ar2CreateHandle(frameSource->getCameraParameters(), frameSource->getPixelFormat(), AR2_TRACKING_DEFAULT_THREAD_NUM)) == NULL ) {
+        logv(AR_LOG_LEVEL_ERROR, "ARController::initNFT(): Error: ar2CreateHandle, exiting, returning false");
+        kpmDeleteHandle(&m_kpmHandle);
+        return (false);
+    }
+    if (threadGetCPU() <= 1) {
+        logv(AR_LOG_LEVEL_INFO, "Using NFT tracking settings for a single CPU");
+        // Settings for devices with single-core CPUs.
+        ar2SetTrackingThresh( m_ar2Handle, 5.0 );
+        ar2SetSimThresh( m_ar2Handle, 0.50 );
+        ar2SetSearchFeatureNum(m_ar2Handle, 16);
+        ar2SetSearchSize(m_ar2Handle, 6);
+        ar2SetTemplateSize1(m_ar2Handle, 6);
+        ar2SetTemplateSize2(m_ar2Handle, 6);
+    } else {
+        logv(AR_LOG_LEVEL_INFO, "Using NFT tracking settings for more than one CPU");
+        // Settings for devices with dual/multi-core CPUs.
+        ar2SetTrackingThresh( m_ar2Handle, 5.0 );
+        ar2SetSimThresh( m_ar2Handle, 0.50 );
+        ar2SetSearchFeatureNum(m_ar2Handle, 16);
+        ar2SetSearchSize(m_ar2Handle, 12);
+        ar2SetTemplateSize1(m_ar2Handle, 6);
+        ar2SetTemplateSize2(m_ar2Handle, 6);
+    }
+    logv(AR_LOG_LEVEL_DEBUG, "ARController::initNFT(): NFT initialisation complete, exiting, returning true");
+    return (true);    
+}
+
+bool ARController::unloadNFTData(void)
+{
+    int i;
+    
+    if (trackingThreadHandle) {
+        logv(AR_LOG_LEVEL_INFO, "Stopping NFT tracking thread.");
+        trackingInitQuit(&trackingThreadHandle);
+        m_kpmBusy = false;
+    }
+    for (i = 0; i < PAGES_MAX; i++) surfaceSet[i] = NULL; // Discard weak-references.
+    m_kpmRequired = true;
+    
+    return true;
+}
+
+bool ARController::loadNFTData(void)
+{
+    // If data was already loaded, stop KPM tracking thread and unload previously loaded data.
+    if (trackingThreadHandle) {
+        logv(AR_LOG_LEVEL_INFO, "Reloading NFT data");
+        unloadNFTData();
+    } else {
+        logv(AR_LOG_LEVEL_INFO, "Loading NFT data");
+    }
+    
+    KpmRefDataSet *refDataSet = NULL;
+    int pageCount = 0;
+    
+    for (std::vector<ARMarker *>::iterator it = markers.begin(); it != markers.end(); ++it) {
+		if ((*it)->type == ARMarker::NFT) {
+            // Load KPM data.
+            KpmRefDataSet *refDataSet2;
+            logv(AR_LOG_LEVEL_INFO, "Reading %s.fset3", ((ARMarkerNFT *)(*it))->datasetPathname);
+            if (kpmLoadRefDataSet(((ARMarkerNFT *)(*it))->datasetPathname, "fset3", &refDataSet2) < 0) {
+                logv(AR_LOG_LEVEL_ERROR, "Error reading KPM data from %s.fset3", ((ARMarkerNFT *)(*it))->datasetPathname);
+                ((ARMarkerNFT *)(*it))->pageNo = -1;
+                continue;
+            }
+            ((ARMarkerNFT *)(*it))->pageNo = pageCount;
+            logv(AR_LOG_LEVEL_INFO, "  Assigned page no. %d.", pageCount);
+            if (kpmChangePageNoOfRefDataSet(refDataSet2, KpmChangePageNoAllPages, pageCount) < 0) {
+                logv(AR_LOG_LEVEL_ERROR, "ARController::loadNFTData(): Error: kpmChangePageNoOfRefDataSet, exit(-1)");
+                exit(-1);
+            }
+            if (kpmMergeRefDataSet(&refDataSet, &refDataSet2) < 0) {
+                logv(AR_LOG_LEVEL_ERROR, "ARController::loadNFTData(): Error: kpmMergeRefDataSet, exit(-1)");
+                exit(-1);
+            }
+            logv(AR_LOG_LEVEL_INFO, "Done");
+            
+            // For convenience, create a weak reference to the AR2 data.
+            surfaceSet[pageCount] = ((ARMarkerNFT *)(*it))->surfaceSet;
+            
+            pageCount++;
+            if (pageCount == PAGES_MAX) {
+                logv(AR_LOG_LEVEL_ERROR, "Maximum number of NFT pages (%d) loaded", PAGES_MAX);
+                break;
+            }
+        }
+    }
+    if (kpmSetRefDataSet(m_kpmHandle, refDataSet) < 0) {
+        logv(AR_LOG_LEVEL_ERROR, "ARController::loadNFTData(): Error: kpmSetRefDataSet, exit(-1)");
+        exit(-1);
+    }
+    kpmDeleteRefDataSet(&refDataSet);
+    
+    // Start the KPM tracking thread.
+    logv(AR_LOG_LEVEL_INFO, "Starting NFT tracking thread.");
+    trackingThreadHandle = trackingInitInit(m_kpmHandle);
+    if (!trackingThreadHandle) {
+        logv(AR_LOG_LEVEL_ERROR, "ARController::loadNFTData(): trackingInitInit(), exit(-1)");
+        exit(-1);
+    }
+    
+    logv(AR_LOG_LEVEL_DEBUG, "Loading of NFT data complete, exiting, return true");
+    return true;
+}
 
 bool ARController::shutdown()
 {
@@ -527,6 +758,15 @@ int ARController::getMatrixCodeType() const
 	return (int)matrixCodeType;
 }
 
+void ARController::setNFTMultiMode(bool on)
+{
+    m_nftMultiMode = on;
+}
+
+bool ARController::getNFTMultiMode() const
+{
+	return m_nftMultiMode;
+}
 
 int ARController::addMarker(const char* cfg)
 {
@@ -562,7 +802,16 @@ bool ARController::addMarker(ARMarker* marker)
 
 	markers.push_back(marker);
 
-	doMarkerDetection = true;
+	if (marker->type == ARMarker::NFT) {
+        if (!doNFTMarkerDetection)
+            logv(AR_LOG_LEVEL_INFO, "First NFT marker added; enabling NFT marker detection.");
+        doNFTMarkerDetection = true;
+        if (trackingThreadHandle) {
+            unloadNFTData(); // loadNFTData() will be called on next update().
+        }
+    } else {
+        doMarkerDetection = true;
+    }
 
 	logv(AR_LOG_LEVEL_INFO, "Added marker (UID=%d), total markers loaded: %d.", marker->UID, countMarkers());
 	return true;
@@ -593,15 +842,33 @@ bool ARController::removeMarker(ARMarker* marker)
 		logv(AR_LOG_LEVEL_ERROR, "ARController::removeMarker(): Could not find marker (UID=%d), exiting, returning false", UID);
 		return false;
 	}
+	if (marker->type == ARMarker::NFT && trackingThreadHandle) {
+        unloadNFTData(); // If at least 1 NFT marker remains, loadNFTData() will be called on next update().
+    }
 
 	delete marker; // std::vector does not call destructor if it's a raw pointer being stored, so explicitly delete it.
 	markers.erase(position);
 
-	int markerCount = countMarkers();
-	if (markerCount == 0) {
-		logv(AR_LOG_LEVEL_INFO, "Last square marker removed; disabling square marker detection.");
-		doMarkerDetection = false;
-	}
+	// Count each type of marker.
+    int nftMarkerCount = 0;
+    int squareMarkerCount = 0;
+    std::vector<ARMarker *>::const_iterator it = markers.begin();
+    while (it != markers.end()) {
+        if ((*it)->type == ARMarker::NFT ) nftMarkerCount++;
+        else squareMarkerCount++;
+        ++it;
+    }
+    if (nftMarkerCount == 0) {
+        if (doNFTMarkerDetection)
+            logv(AR_LOG_LEVEL_INFO, "Last NFT marker removed; disabling NFT marker detection.");
+        doNFTMarkerDetection = false;
+    }
+    if (squareMarkerCount == 0) {
+        if (doMarkerDetection)
+            logv(AR_LOG_LEVEL_INFO, "Last square marker removed; disabling square marker detection.");
+        doMarkerDetection = false;
+    }
+    int markerCount = nftMarkerCount + squareMarkerCount;
 
 	logv(AR_LOG_LEVEL_INFO, "Removed marker (UID=%d), now %d markers loaded", UID, markerCount);
 	logv(AR_LOG_LEVEL_DEBUG, "ARController::removeMarker(): exiting, returning %s", ((found) ? "true" : "false"));
@@ -611,8 +878,13 @@ bool ARController::removeMarker(ARMarker* marker)
 int ARController::removeAllMarkers()
 {
 	int count = countMarkers();
+
+	if (trackingThreadHandle) {
+        unloadNFTData();
+    }
 	markers.clear();
 	doMarkerDetection = false;
+	doNFTMarkerDetection = false;
 	logv(AR_LOG_LEVEL_INFO, "Removed all %d markers.", count);
 
 	return count;

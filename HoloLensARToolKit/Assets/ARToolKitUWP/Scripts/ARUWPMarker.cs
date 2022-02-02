@@ -76,7 +76,12 @@ public class ARUWPMarker : MonoBehaviour{
         /// Multi-marker consisting several pattern markers or several matrix code markers,
         /// described by a configuration file.
         /// </summary>
-        multi
+        multi,
+        /// <summary>
+        /// NFT marker based on a two-dimensional textured image,
+        /// described by a configuration file.
+        /// </summary>
+        nft
     }
 
     /// <summary>
@@ -150,7 +155,6 @@ public class ARUWPMarker : MonoBehaviour{
     /// </summary>
     public float oConfCutOff = 0.5f;
 
-
     /// <summary>
     /// Indicate the filename of multi-marker configuration. Useful when marker type is multi.
     /// [public use] [initialization only]
@@ -166,6 +170,18 @@ public class ARUWPMarker : MonoBehaviour{
     /// The array of ARUWPPatterns contained in the multi-marker. [internal use]
     /// </summary>
     private ARUWPPattern[] multiPatterns;
+
+    /// <summary>
+    /// Indicate the filename of nft-marker configuration. Useful when marker type is nft.
+    /// [public use] [initialization only]
+    /// </summary>
+    public string nftFileName = "DataNFT/pinball";
+
+    /// <summary>
+    /// Initial value of the scale factor applied to the NFT marker size. At runtime, please use 
+    /// SetOptionScaleFactor() to modify the value. [public use] [initialization only]
+    /// </summary>
+    public float oScaleFactor = 1.0f;
 
     /// <summary>
     /// The definition of ARUWPPattern, representing single markers in a multi-marker.
@@ -352,6 +368,10 @@ public class ARUWPMarker : MonoBehaviour{
             Debug.Log(TAG + ": Main Camera does not exist in the scene");
             Application.Quit();
         }
+
+        // Set the translation offset (z = 20 cm)
+        // NOTE: The same translation offsets can be applied to the virtual content through Unity
+        //calibrationMatrix.SetColumn(3, new Vector4(0f, 0f, 0.2f, 1f));
     }
 
 
@@ -387,7 +407,7 @@ public class ARUWPMarker : MonoBehaviour{
     public void UpdateTrackingInfo(Matrix4x4 locatableCameraToWorld) {
         if (id != -1) {
             if (ARUWP.aruwpQueryMarkerTransformation(id, __info.trans)) {
-                if (type != MarkerType.multi) {
+                if (type != MarkerType.multi && type != MarkerType.nft) {
                     __info.confidence = ARUWP.aruwpGetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE);
                 }
                 __info.visible = true;
@@ -430,6 +450,10 @@ public class ARUWPMarker : MonoBehaviour{
                 case MarkerType.multi:
                     str = "multi;Data/StreamingAssets/" + multiFileName;
                     break;
+
+                case MarkerType.nft:
+                    str = "nft;Data/StreamingAssets/" + nftFileName;
+                    break;
             }
             id = ARUWP.aruwpAddMarker(str);
             if (id != -1) {
@@ -440,6 +464,7 @@ public class ARUWPMarker : MonoBehaviour{
                 SetOptionFilterCutoffFreq(oCutOffFreq);
                 SetOptionUseContPoseEst(oUseContPoseEst);
                 SetOptionConfCutOff(oConfCutOff);
+                SetOptionScaleFactor(oScaleFactor);
                 SetOptionMinSubMarkers(oMinSubMarkers);
                 SetOptionMinConfMatrix(oMinConfSubMatrix);
                 SetOptionMinConfPattern(oMinConfSubPattern);
@@ -493,11 +518,13 @@ public class ARUWPMarker : MonoBehaviour{
                     oSampleRate = ARUWP.aruwpGetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_FILTER_SAMPLE_RATE);
                     oCutOffFreq = ARUWP.aruwpGetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_FILTER_CUTOFF_FREQ);
                 }
-                if (type != MarkerType.multi) {
+                // single marker
+                if (type != MarkerType.multi && type != MarkerType.nft) {
                     oUseContPoseEst = ARUWP.aruwpGetMarkerOptionBool(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION);
                     oConfCutOff = ARUWP.aruwpGetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE_CUTOFF);
                 }
-                else {
+                // multiple marker
+                else if (type == MarkerType.multi) {
                     multiPatternCount = ARUWP.aruwpGetMarkerPatternCount(id);
                     oMinSubMarkers = ARUWP.aruwpGetMarkerOptionInt(id, ARUWP.ARUWP_MARKER_OPTION_MULTI_MIN_SUBMARKERS);
                     oMinConfSubMatrix = ARUWP.aruwpGetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_MULTI_MIN_CONF_MATRIX);
@@ -509,6 +536,10 @@ public class ARUWPMarker : MonoBehaviour{
                         ARUWP.aruwpGetMarkerPatternConfig(id, i, multiPatterns[i].matrix,
                             out multiPatterns[i].width, out multiPatterns[i].height, out multiPatterns[i].imageSizeX, out multiPatterns[i].imageSizeY);
                     }
+                }
+                // nft marker
+                else if (type == MarkerType.nft) {
+                    oScaleFactor = ARUWP.aruwpGetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_NFT_SCALE);
                 }
             }
             else {
@@ -596,7 +627,7 @@ public class ARUWPMarker : MonoBehaviour{
     /// </summary>
     /// <param name="o">New parameter</param>
     public void SetOptionUseContPoseEst(bool o) {
-        if (id != -1 && type != MarkerType.multi) {
+        if (id != -1 && type != MarkerType.multi && type != MarkerType.nft) {
             if (HasNativeHandle()) {
                 ARUWP.aruwpSetMarkerOptionBool(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, o? 1:0);
                 oUseContPoseEst = ARUWP.aruwpGetMarkerOptionBool(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION);
@@ -618,7 +649,7 @@ public class ARUWPMarker : MonoBehaviour{
     /// </summary>
     /// <param name="o">New parameter</param>
     public void SetOptionConfCutOff(float o) {
-        if (id != -1 && type != MarkerType.multi) {
+        if (id != -1 && type != MarkerType.multi && type != MarkerType.nft) {
             if (HasNativeHandle()) {
                 ARUWP.aruwpSetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE_CUTOFF, o);
                 oConfCutOff = ARUWP.aruwpGetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_SQUARE_CONFIDENCE_CUTOFF);
@@ -632,6 +663,28 @@ public class ARUWPMarker : MonoBehaviour{
         }
         else {
             oConfCutOff = o;
+        }
+    }
+
+    /// <summary>
+    /// Set oScaleFactor parameter at runtime. [public use]
+    /// </summary>
+    /// <param name="o">New parameter</param>
+    public void SetOptionScaleFactor(float o) {
+        if (id != -1 && type == MarkerType.nft) {
+            if (HasNativeHandle()) {
+                ARUWP.aruwpSetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_NFT_SCALE, o);
+                oScaleFactor = ARUWP.aruwpGetMarkerOptionFloat(id, ARUWP.ARUWP_MARKER_OPTION_NFT_SCALE);
+                if (oScaleFactor != o) {
+                    Debug.Log(TAG + ": Unable to set ARUWP_MARKER_OPTION_NFT_SCALE to " + o);
+                }
+            }
+            else {
+                Debug.Log(TAG + ": SetOptionScaleFactor() unsupported status");
+            }
+        }
+        else {
+            oScaleFactor = o;
         }
     }
 
@@ -725,6 +778,9 @@ public class ARUWPMarker : MonoBehaviour{
             case MarkerType.multi:
                 str += "Marker filename: " + multiFileName + "\n";
                 break;
+            case MarkerType.nft:
+                str += "Marker filename: " + nftFileName + "\n";
+                break;
         }
         str += "Marker filtered: " + oFiltered + "\n";
         if (oFiltered) {
@@ -732,11 +788,12 @@ public class ARUWPMarker : MonoBehaviour{
             str += "Marker filtered cutoff frequency: " + oCutOffFreq + "\n";
         }
         // single marker
-        if (type != MarkerType.multi) {
+        if (type != MarkerType.multi && type != MarkerType.nft) {
             str += "Marker continuous pose estimation: " + oUseContPoseEst + "\n";
             str += "Marker confidence cutoff: " + oConfCutOff + "\n";
         }
-        else {
+        // multiple marker
+        else if (type == MarkerType.multi) {
             str += "Marker patterns: " + multiPatternCount + "\n";
             str += "Marker minimum submarkers: " + oMinSubMarkers + "\n";
             str += "Marker confidence value for submarker valid matrix tracking: " + oMinConfSubMatrix + "\n";
@@ -755,6 +812,10 @@ public class ARUWPMarker : MonoBehaviour{
                         multiPatterns[i].matrix[3], multiPatterns[i].matrix[7], multiPatterns[i].matrix[11], multiPatterns[i].matrix[15]);
                 }
             }
+        }
+        // nft marker
+        else if (type == MarkerType.nft) {
+            str += "Marker scale factor: " + oScaleFactor + "\n";
         }
         Debug.Log(str);
     }
