@@ -55,6 +55,7 @@ public class ARUWPMarkerEditor : Editor {
         oMinSubMarkers_Prop,
         oMinConfSubMatrix_Prop,
         oMinConfSubPattern_Prop,
+        oScaleFactor_Prop,
         target_Prop,
         anchoredToWorld_Prop,
         applyRotation_Prop,
@@ -78,6 +79,7 @@ public class ARUWPMarkerEditor : Editor {
         oMinSubMarkers_Prop = serializedObject.FindProperty("oMinSubMarkers");
         oMinConfSubMatrix_Prop = serializedObject.FindProperty("oMinConfSubMatrix");
         oMinConfSubPattern_Prop = serializedObject.FindProperty("oMinConfSubPattern");
+        oScaleFactor_Prop = serializedObject.FindProperty("oScaleFactor");
         target_Prop = serializedObject.FindProperty("target");
         anchoredToWorld_Prop = serializedObject.FindProperty("anchoredToWorld");
         applyRotation_Prop = serializedObject.FindProperty("applyRotation");
@@ -127,14 +129,19 @@ public class ARUWPMarkerEditor : Editor {
                 EditorGUILayout.PropertyField(oCutOffFreq_Prop, new GUIContent("Cutoff Frequency"));
             }
             // single markers
-            if (type != ARUWPMarker.MarkerType.multi) {
+            if (type != ARUWPMarker.MarkerType.multi && type != ARUWPMarker.MarkerType.nft) {
                 EditorGUILayout.PropertyField(oUseContPoseEst_Prop, new GUIContent("Continuous Pose Estimation"));
                 EditorGUILayout.PropertyField(oConfCutOff_Prop, new GUIContent("Confidence Cutoff"));
             }
-            else {
+            // multiple markers
+            else if (type == ARUWPMarker.MarkerType.multi) {
                 EditorGUILayout.PropertyField(oMinSubMarkers_Prop, new GUIContent("Minimum Sub Markers"));
                 EditorGUILayout.PropertyField(oMinConfSubMatrix_Prop, new GUIContent("Minumum Sub Matrix Confidence"));
                 EditorGUILayout.PropertyField(oMinConfSubPattern_Prop, new GUIContent("Minumum Sub Pattern Confidence"));
+            }
+            // nft markers
+            else if (type == ARUWPMarker.MarkerType.nft) {
+                EditorGUILayout.PropertyField(oScaleFactor_Prop, new GUIContent("Scale Factor"));
             }
 
         }

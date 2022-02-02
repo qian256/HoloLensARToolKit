@@ -506,6 +506,7 @@ MonoBehaviour:
   oConfCutOff: 0
   multiFileName: multi-barcode-4x3.dat
   nftFileName: DataNFT/pinball
+  oScaleFactor: 1
   oMinSubMarkers: 0
   oMinConfSubMatrix: 0.5
   oMinConfSubPattern: 0.5
